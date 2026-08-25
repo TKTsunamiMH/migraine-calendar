@@ -256,15 +256,25 @@ async function loadHistory() {
 }
 
 function entryToHistoryCard(entry) {
+    const rows = [
+        entry.breakfast && `<p><strong>Breakfast:</strong> ${entry.breakfast}</p>`,
+        entry.lunch && `<p><strong>Lunch:</strong> ${entry.lunch}</p>`,
+        entry.other_food && `<p><strong>Other food:</strong> ${entry.other_food}</p>`,
+        (entry.water_liters != null) && `<p><strong>Water:</strong> ${entry.water_liters} L</p>`,
+        (entry.sleep_hours != null) && `<p><strong>Sleep:</strong> ${entry.sleep_hours} h</p>`,
+        entry.medicine && `<p><strong>Medicine:</strong> ${entry.medicine} ${entry.medicine_helped ? '(' + entry.medicine_helped + ')' : ''}</p>`,
+        entry.notes && `<p><strong>Notes:</strong> ${entry.notes}</p>`,
+        entry.weather_description && `<p><strong>Weather:</strong> ${entry.weather_description}${(entry.temp_min != null && entry.temp_max != null) ? `, ${entry.temp_min.toFixed(1)}–${entry.temp_max.toFixed(1)}°C` : ''}${entry.precipitation != null ? `, ${entry.precipitation.toFixed(1)}mm rain` : ''}${entry.humidity_avg != null ? `, ${entry.humidity_avg.toFixed(0)}% humidity` : ''}${entry.pressure_avg != null ? `, ${entry.pressure_avg.toFixed(0)}hPa` : ''}</p>`
+    ].filter(Boolean).join('')
+
     return `
       <div class="history-card">
         <div class="history-card-header">
           <strong>${entry.entry_date}</strong>
           <span class="pain-badge">${entry.headache_type} · pain ${entry.pain_level}</span>
         </div>
-        <p>${entry.location_name ?? ''} ${entry.weather_description ? '· ' + entry.weather_description : ''}</p>
-        ${entry.medicine ? `<p>Medicine: ${entry.medicine} (${entry.medicine_helped || 'n/a'})</p>` : ''}
-        ${entry.notes ? `<p>${entry.notes}</p>` : ''}
+        <p class="history-location">${entry.location_name ?? ''}</p>
+        ${rows}
       </div>
     `
 }
