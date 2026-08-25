@@ -1,2 +1,2 @@
-# migraine-calender
-Priate migraine calender
+# migraine-calendar
+Private migraine calendar
