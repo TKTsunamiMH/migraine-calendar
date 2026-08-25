@@ -1,4 +1,5 @@
-﻿import './style.css'
+﻿import { supabase } from './supabaseClient.js'
+import './style.css'
 
 document.querySelector('#app').innerHTML = `
   <div class="app-container">
@@ -182,12 +183,93 @@ navButtons.forEach(button => {
     })
 })
 
-document.querySelector('#migraine-form').addEventListener('submit', event => {
+document.querySelector('#migraine-form').addEventListener('submit', async event => {
     event.preventDefault()
 
-    document.querySelector('#saveMessage').textContent =
-        'Looks good. Database saving will be connected next.'
+    const saveMessage = document.querySelector('#saveMessage')
+    saveMessage.textContent = 'Saving...'
+
+    const entry = {
+        entry_date: document.querySelector('#date').value,
+        breakfast: document.querySelector('#breakfast').value,
+        lunch: document.querySelector('#lunch').value,
+        other_food: document.querySelector('#otherFood').value,
+        water_liters: parseFloat(document.querySelector('#water').value) || null,
+        sleep_hours: parseFloat(document.querySelector('#sleepHours').value) || null,
+        slept_through: document.querySelector('#sleptThrough').value || null,
+        headache_type: document.querySelector('#headacheType').value,
+        pain_level: parseInt(document.querySelector('#painLevel').value, 10),
+        medicine: document.querySelector('#medicine').value,
+        medicine_helped: document.querySelector('#medicineHelped').value || null,
+        notes: document.querySelector('#notes').value,
+        location_name: selectedLocationData?.name ?? null,
+        latitude: selectedLocationData?.latitude ?? null,
+        longitude: selectedLocationData?.longitude ?? null,
+        weather_description: window.currentWeather?.description ?? null,
+        temp_min: window.currentWeather?.temperatureMin ?? null,
+        temp_max: window.currentWeather?.temperatureMax ?? null,
+        precipitation: window.currentWeather?.precipitation ?? null,
+        humidity_avg: window.currentWeather?.humidityAverage ?? null,
+        pressure_avg: window.currentWeather?.pressureAverage ?? null,
+        pressure_min: window.currentWeather?.pressureMin ?? null,
+        pressure_max: window.currentWeather?.pressureMax ?? null
+    }
+
+    const { error } = await supabase.from('entries').insert(entry)
+
+    if (error) {
+        console.error(error)
+        saveMessage.textContent = 'Something went wrong while saving.'
+        return
+    }
+
+    saveMessage.textContent = 'Entry saved!'
+    document.querySelector('#migraine-form').reset()
+    window.currentWeather = null
+    loadHistory()
 })
+
+async function loadHistory() {
+    const historyPage = document.querySelector('#history-page')
+
+    const { data, error } = await supabase
+        .from('entries')
+        .select('*')
+        .order('entry_date', { ascending: false })
+
+    if (error) {
+        historyPage.innerHTML = '<h2>History</h2><p>Could not load entries.</p>'
+        return
+    }
+
+    if (!data || data.length === 0) {
+        historyPage.innerHTML = '<h2>History</h2><p>No entries yet.</p>'
+        return
+    }
+
+    historyPage.innerHTML = `
+      <h2>History</h2>
+      <div class="history-list">
+        ${data.map(entryToHistoryCard).join('')}
+      </div>
+    `
+}
+
+function entryToHistoryCard(entry) {
+    return `
+      <div class="history-card">
+        <div class="history-card-header">
+          <strong>${entry.entry_date}</strong>
+          <span class="pain-badge">${entry.headache_type} · pain ${entry.pain_level}</span>
+        </div>
+        <p>${entry.location_name ?? ''} ${entry.weather_description ? '· ' + entry.weather_description : ''}</p>
+        ${entry.medicine ? `<p>Medicine: ${entry.medicine} (${entry.medicine_helped || 'n/a'})</p>` : ''}
+        ${entry.notes ? `<p>${entry.notes}</p>` : ''}
+      </div>
+    `
+}
+
+loadHistory()
 
 function getWeatherDescription(code) {
     const weatherCodes = {
