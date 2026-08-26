@@ -140,9 +140,14 @@ document.querySelector('#app').innerHTML = `
       </section>
 
       <section id="calendar-page" class="page">
-        <h2>Calendar</h2>
-        <p>Your migraine calendar will appear here.</p>
-      </section>
+  <div class="calendar-header">
+    <button type="button" id="prevMonth" class="secondary-button">←</button>
+    <h2 id="calendarMonthLabel"></h2>
+    <button type="button" id="nextMonth" class="secondary-button">→</button>
+  </div>
+  <div id="calendarGrid" class="calendar-grid"></div>
+  <div id="calendarDetail"></div>
+</section>
 
       <section id="history-page" class="page">
         <h2>History</h2>
@@ -280,6 +285,97 @@ function entryToHistoryCard(entry) {
 }
 
 loadHistory()
+
+let calendarViewDate = new Date()
+
+function painToColor(pain) {
+    if (pain == null) return null
+    const colors = [
+        '#e8f5e9', // 0
+        '#dcedc8', // 1
+        '#c5e1a5', // 2
+        '#fff59d', // 3
+        '#ffe082', // 4
+        '#ffcc80', // 5
+        '#ffab91', // 6
+        '#ef9a9a', // 7
+        '#e57373', // 8
+        '#e53935', // 9
+        '#b71c1c'  // 10
+    ]
+    return colors[Math.max(0, Math.min(10, pain))]
+}
+
+async function renderCalendar() {
+    const label = document.querySelector('#calendarMonthLabel')
+    const grid = document.querySelector('#calendarGrid')
+
+    const year = calendarViewDate.getFullYear()
+    const month = calendarViewDate.getMonth()
+
+    label.textContent = calendarViewDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+
+    const startOfMonth = [year, String(month + 1).padStart(2, '0'), '01'].join('-')
+    const endOfMonth = [year, String(month + 1).padStart(2, '0'), String(new Date(year, month + 1, 0).getDate()).padStart(2, '0')].join('-')
+
+    const { data, error } = await supabase
+        .from('entries')
+        .select('*')
+        .gte('entry_date', startOfMonth)
+        .lte('entry_date', endOfMonth)
+
+    const entriesByDate = {}
+    if (!error && data) {
+        data.forEach(entry => { entriesByDate[entry.entry_date] = entry })
+    }
+
+    const firstDay = new Date(year, month, 1)
+    const startOffset = (firstDay.getDay() + 6) % 7 // Monday-first week
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+    let cells = ''
+
+    for (let i = 0; i < startOffset; i++) {
+        cells += '<div class="calendar-cell empty"></div>'
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = [year, String(month + 1).padStart(2, '0'), String(day).padStart(2, '0')].join('-')
+        const entry = entriesByDate[dateStr]
+        const color = entry ? painToColor(entry.pain_level) : null
+
+        cells += `
+          <div class="calendar-cell" data-date="${dateStr}" style="${color ? `background:${color}` : ''}">
+            <span class="calendar-day-number">${day}</span>
+            ${entry ? `<span class="calendar-pain">${entry.pain_level}</span>` : ''}
+          </div>
+        `
+    }
+
+    grid.innerHTML = cells
+
+    grid.querySelectorAll('.calendar-cell[data-date]').forEach(cell => {
+        cell.addEventListener('click', () => {
+            const entry = entriesByDate[cell.dataset.date]
+            const detail = document.querySelector('#calendarDetail')
+            detail.innerHTML = entry
+                ? entryToHistoryCard(entry)
+                : `<p>No entry for ${cell.dataset.date}.</p>`
+        })
+    })
+}
+
+document.querySelector('#prevMonth').addEventListener('click', () => {
+    calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1)
+    renderCalendar()
+})
+
+document.querySelector('#nextMonth').addEventListener('click', () => {
+    calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1)
+    renderCalendar()
+})
+
+renderCalendar()
 
 function getWeatherDescription(code) {
     const weatherCodes = {
