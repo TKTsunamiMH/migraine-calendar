@@ -1,11 +1,58 @@
 ﻿import { supabase } from './supabaseClient.js'
 import './style.css'
 
+const { data: { session } } = await supabase.auth.getSession()
+
+if (!session) {
+    document.querySelector('#app').innerHTML = `
+      <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+          <h1>Migraine Calendar</h1>
+          <p>Please sign in.</p>
+          <form id="login-form">
+            <label>
+              Email
+              <input type="email" id="loginEmail" required autocomplete="username">
+            </label>
+            <label>
+              Password
+              <input type="password" id="loginPassword" required autocomplete="current-password">
+            </label>
+            <button class="save-button" type="submit">Sign in</button>
+            <p id="loginError"></p>
+          </form>
+        </div>
+      </div>
+    `
+
+    document.querySelector('#login-form').addEventListener('submit', async event => {
+        event.preventDefault()
+
+        const email = document.querySelector('#loginEmail').value
+        const password = document.querySelector('#loginPassword').value
+        const errorMessage = document.querySelector('#loginError')
+
+        errorMessage.textContent = 'Signing in...'
+
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+        if (error) {
+            errorMessage.textContent = 'Incorrect email or password.'
+            return
+        }
+
+        window.location.reload()
+    })
+
+    throw new Error('STOP_HERE_NOT_LOGGED_IN')
+}
+
 document.querySelector('#app').innerHTML = `
-  <div class="app-container">
+    <div id="appScreen" class="app-container">
     <header class="header">
       <h1>Migraine Calendar</h1>
       <p>Track food, sleep, water, symptoms, medicine and weather.</p>
+      <button type="button" id="logoutButton" class="secondary-button">Sign out</button>
     </header>
 
     <nav class="nav">
@@ -232,6 +279,11 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
     document.querySelector('#migraine-form').reset()
     window.currentWeather = null
     loadHistory()
+})
+
+document.querySelector('#logoutButton').addEventListener('click', async () => {
+    await supabase.auth.signOut()
+    window.location.reload()
 })
 
 async function loadHistory() {
