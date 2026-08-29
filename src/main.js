@@ -279,6 +279,7 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
     document.querySelector('#migraine-form').reset()
     window.currentWeather = null
     loadHistory()
+    renderCalendar()
 })
 
 document.querySelector('#logoutButton').addEventListener('click', async () => {
