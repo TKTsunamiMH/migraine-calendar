@@ -135,6 +135,15 @@ document.querySelector('#app').innerHTML = `
             </label>
 
             <label>
+              Period?
+              <select id="hadPeriod">
+                <option value="">Not tracked</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </label>
+
+            <label>
               Headache type
               <select id="headacheType">
                 <option value="none">None</option>
@@ -249,6 +258,7 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
         water_liters: parseFloat(document.querySelector('#water').value) || null,
         sleep_hours: parseFloat(document.querySelector('#sleepHours').value) || null,
         slept_through: document.querySelector('#sleptThrough').value || null,
+        had_period: document.querySelector('#hadPeriod').value === '' ? null : document.querySelector('#hadPeriod').value === 'yes',
         headache_type: document.querySelector('#headacheType').value,
         pain_level: parseInt(document.querySelector('#painLevel').value, 10),
         medicine: document.querySelector('#medicine').value,
@@ -320,6 +330,7 @@ function entryToHistoryCard(entry) {
         entry.other_food && `<p><strong>Other food:</strong> ${entry.other_food}</p>`,
         (entry.water_liters != null) && `<p><strong>Water:</strong> ${entry.water_liters} L</p>`,
         (entry.sleep_hours != null) && `<p><strong>Sleep:</strong> ${entry.sleep_hours} h</p>`,
+        (entry.had_period != null) && `<p><strong>Period:</strong> ${entry.had_period ? 'Yes' : 'No'}</p>`,
         entry.medicine && `<p><strong>Medicine:</strong> ${entry.medicine} ${entry.medicine_helped ? '(' + entry.medicine_helped + ')' : ''}</p>`,
         entry.notes && `<p><strong>Notes:</strong> ${entry.notes}</p>`,
         entry.weather_description && `<p><strong>Weather:</strong> ${entry.weather_description}${(entry.temp_min != null && entry.temp_max != null) ? `, ${entry.temp_min.toFixed(1)}–${entry.temp_max.toFixed(1)}°C` : ''}${entry.precipitation != null ? `, ${entry.precipitation.toFixed(1)}mm rain` : ''}${entry.humidity_avg != null ? `, ${entry.humidity_avg.toFixed(0)}% humidity` : ''}${entry.pressure_avg != null ? `, ${entry.pressure_avg.toFixed(0)}hPa` : ''}</p>`
