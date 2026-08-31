@@ -247,6 +247,7 @@ textarea {
     flex-direction: column;
     justify-content: space-between;
     font-size: 0.8rem;
+    position: relative;
 }
 
     .calendar-cell.empty {
@@ -271,6 +272,13 @@ textarea {
 
 #calendarDetail {
     margin-top: 20px;
+}
+
+.calendar-period {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 0.7rem;
 }
 
 .login-screen {

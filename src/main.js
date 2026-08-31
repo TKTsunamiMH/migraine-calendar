@@ -339,7 +339,7 @@ function entryToHistoryCard(entry) {
     return `
       <div class="history-card">
         <div class="history-card-header">
-          <strong>${entry.entry_date}</strong>
+          <strong>${entry.entry_date}${entry.had_period ? ' 🩸' : ''}</strong>
           <span class="pain-badge">${entry.headache_type} · pain ${entry.pain_level}</span>
         </div>
         <p class="history-location">${entry.location_name ?? ''}</p>
@@ -411,6 +411,7 @@ async function renderCalendar() {
         cells += `
           <div class="calendar-cell" data-date="${dateStr}" style="${color ? `background:${color}` : ''}">
             <span class="calendar-day-number">${day}</span>
+            ${entry?.had_period ? '<span class="calendar-period">🩸</span>' : ''}
             ${entry ? `<span class="calendar-pain">${entry.pain_level}</span>` : ''}
           </div>
         `
