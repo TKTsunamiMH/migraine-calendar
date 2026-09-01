@@ -274,6 +274,13 @@ textarea {
     margin-top: 20px;
 }
 
+.calendar-migraine {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    font-size: 0.7rem;
+}
+
 .calendar-period {
     position: absolute;
     top: 4px;
