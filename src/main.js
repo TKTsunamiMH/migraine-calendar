@@ -191,6 +191,7 @@ document.querySelector('#app').innerHTML = `
           </div>
 
           <button class="save-button" type="submit">Save Entry</button>
+          <button type="button" id="cancelEditButton" class="secondary-button" style="display:none">Cancel edit</button>
           <p id="saveMessage"></p>
         </form>
       </section>
@@ -277,7 +278,9 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
         pressure_max: window.currentWeather?.pressureMax ?? null
     }
 
-    const { error } = await supabase.from('entries').insert(entry)
+    const { error } = editingEntryId
+        ? await supabase.from('entries').update(entry).eq('id', editingEntryId)
+        : await supabase.from('entries').insert(entry)
 
     if (error) {
         console.error(error)
@@ -285,9 +288,11 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
         return
     }
 
-    saveMessage.textContent = 'Entry saved!'
+    saveMessage.textContent = editingEntryId ? 'Entry updated!' : 'Entry saved!'
     document.querySelector('#migraine-form').reset()
+    document.querySelector('#cancelEditButton').style.display = 'none'
     window.currentWeather = null
+    editingEntryId = null
     loadHistory()
     renderCalendar()
 })
@@ -296,6 +301,8 @@ document.querySelector('#logoutButton').addEventListener('click', async () => {
     await supabase.auth.signOut()
     window.location.reload()
 })
+
+let historyEntries = []
 
 async function loadHistory() {
     const historyPage = document.querySelector('#history-page')
@@ -310,7 +317,9 @@ async function loadHistory() {
         return
     }
 
-    if (!data || data.length === 0) {
+    historyEntries = data ?? []
+
+    if (historyEntries.length === 0) {
         historyPage.innerHTML = '<h2>History</h2><p>No entries yet.</p>'
         return
     }
@@ -318,9 +327,16 @@ async function loadHistory() {
     historyPage.innerHTML = `
       <h2>History</h2>
       <div class="history-list">
-        ${data.map(entryToHistoryCard).join('')}
+        ${historyEntries.map(entryToHistoryCard).join('')}
       </div>
     `
+
+    historyPage.querySelectorAll('.edit-entry-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const entry = historyEntries.find(e => e.id === button.dataset.id)
+            if (entry) loadEntryIntoForm(entry)
+        })
+    })
 }
 
 function entryToHistoryCard(entry) {
@@ -336,7 +352,7 @@ function entryToHistoryCard(entry) {
         entry.weather_description && `<p><strong>Weather:</strong> ${entry.weather_description}${(entry.temp_min != null && entry.temp_max != null) ? `, ${entry.temp_min.toFixed(1)}–${entry.temp_max.toFixed(1)}°C` : ''}${entry.precipitation != null ? `, ${entry.precipitation.toFixed(1)}mm rain` : ''}${entry.humidity_avg != null ? `, ${entry.humidity_avg.toFixed(0)}% humidity` : ''}${entry.pressure_avg != null ? `, ${entry.pressure_avg.toFixed(0)}hPa` : ''}</p>`
     ].filter(Boolean).join('')
 
-    return `
+        return `
       <div class="history-card">
         <div class="history-card-header">
           <strong>${entry.entry_date}${entry.had_period ? ' 🩸' : ''}${entry.headache_type === 'migraine' ? ' ⚡' : ''}</strong>
@@ -344,6 +360,7 @@ function entryToHistoryCard(entry) {
         </div>
         <p class="history-location">${entry.location_name ?? ''}</p>
         ${rows}
+        <button type="button" class="secondary-button edit-entry-button" data-id="${entry.id}">Edit</button>
       </div>
     `
 }
@@ -351,6 +368,68 @@ function entryToHistoryCard(entry) {
 loadHistory()
 
 let calendarViewDate = new Date()
+
+let editingEntryId = null
+
+function loadEntryIntoForm(entry) {
+    editingEntryId = entry.id
+
+    document.querySelector('#date').value = entry.entry_date
+    document.querySelector('#breakfast').value = entry.breakfast ?? ''
+    document.querySelector('#lunch').value = entry.lunch ?? ''
+    document.querySelector('#otherFood').value = entry.other_food ?? ''
+    document.querySelector('#water').value = entry.water_liters ?? ''
+    document.querySelector('#sleepHours').value = entry.sleep_hours ?? ''
+    document.querySelector('#sleptThrough').value = entry.slept_through ?? ''
+    document.querySelector('#hadPeriod').value = entry.had_period == null ? '' : (entry.had_period ? 'yes' : 'no')
+    document.querySelector('#headacheType').value = entry.headache_type ?? 'none'
+    document.querySelector('#painLevel').value = entry.pain_level ?? 0
+    document.querySelector('#painValue').textContent = entry.pain_level ?? 0
+    document.querySelector('#medicine').value = entry.medicine ?? ''
+    document.querySelector('#medicineHelped').value = entry.medicine_helped ?? ''
+    document.querySelector('#notes').value = entry.notes ?? ''
+
+    if (entry.location_name) {
+        selectedLocationData = {
+            name: entry.location_name,
+            latitude: entry.latitude,
+            longitude: entry.longitude,
+            admin1: '',
+            admin2: '',
+            country: ''
+        }
+        document.querySelector('#selectedLocation').textContent = `Selected: ${entry.location_name}`
+    }
+
+    document.querySelector('#saveMessage').textContent = `Editing entry from ${entry.entry_date}`
+    document.querySelector('#cancelEditButton').style.display = 'inline-block'
+
+    // Switch to the Today tab
+    navButtons.forEach(btn => btn.classList.remove('active'))
+    pages.forEach(page => page.classList.remove('active'))
+    document.querySelector('[data-page="entry"]').classList.add('active')
+    document.querySelector('#entry-page').classList.add('active')
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function cancelEdit() {
+    editingEntryId = null
+    document.querySelector('#migraine-form').reset()
+    document.querySelector('#cancelEditButton').style.display = 'none'
+    document.querySelector('#saveMessage').textContent = ''
+
+    const today = new Date()
+    document.querySelector('#date').value = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, '0'),
+        String(today.getDate()).padStart(2, '0')
+    ].join('-')
+
+    document.querySelector('#painValue').textContent = '0'
+}
+
+document.querySelector('#cancelEditButton').addEventListener('click', cancelEdit)
 
 function painToColor(pain) {
     if (pain == null) return null
@@ -427,6 +506,11 @@ async function renderCalendar() {
             detail.innerHTML = entry
                 ? entryToHistoryCard(entry)
                 : `<p>No entry for ${cell.dataset.date}.</p>`
+
+            const editButton = detail.querySelector('.edit-entry-button')
+            if (editButton) {
+                editButton.addEventListener('click', () => loadEntryIntoForm(entry))
+            }
         })
     })
 }
