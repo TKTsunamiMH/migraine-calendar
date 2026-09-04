@@ -1,6 +1,16 @@
 ﻿import { supabase } from './supabaseClient.js'
 import './style.css'
 
+function applyDarkModePreference() {
+    const saved = localStorage.getItem('darkMode')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const shouldUseDark = saved === 'true' || (saved === null && prefersDark)
+
+    document.body.classList.toggle('dark-mode', shouldUseDark)
+}
+
+applyDarkModePreference()
+
 const { data: { session } } = await supabase.auth.getSession()
 
 if (!session) {
@@ -49,9 +59,10 @@ if (!session) {
 
 document.querySelector('#app').innerHTML = `
     <div id="appScreen" class="app-container">
-    <header class="header">
+   <header class="header">
       <h1>Migraine Calendar</h1>
       <p>Track food, sleep, water, symptoms, medicine and weather.</p>
+      <button type="button" id="darkModeButton" class="secondary-button">🌙 Dark mode</button>
       <button type="button" id="logoutButton" class="secondary-button">Sign out</button>
     </header>
 
@@ -306,6 +317,20 @@ document.querySelector('#logoutButton').addEventListener('click', async () => {
     await supabase.auth.signOut()
     window.location.reload()
 })
+
+function updateDarkModeButtonLabel() {
+    const button = document.querySelector('#darkModeButton')
+    if (!button) return
+    button.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light mode' : '🌙 Dark mode'
+}
+
+document.querySelector('#darkModeButton').addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode')
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'))
+    updateDarkModeButtonLabel()
+})
+
+updateDarkModeButtonLabel()
 
 let historyEntries = []
 
