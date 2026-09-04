@@ -274,18 +274,26 @@ textarea {
     margin-top: 20px;
 }
 
-.calendar-migraine {
-    position: absolute;
-    bottom: 4px;
-    left: 4px;
-    font-size: 0.7rem;
-}
-
+.calendar-migraine,
 .calendar-period {
     position: absolute;
+    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+.calendar-migraine {
+    bottom: 4px;
+    left: 4px;
+}
+.calendar-period {
     top: 4px;
     right: 4px;
-    font-size: 0.7rem;
 }
 
 .login-screen {
@@ -295,6 +303,76 @@ textarea {
     justify-content: center;
     padding: 20px;
 }
+
+.calendar-view-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.calendar-view-toggle .active-view {
+    background: #222;
+    color: white;
+}
+.calendar-year-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+.mini-month {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+}
+.mini-month:hover {
+    border-color: #999;
+}
+.mini-month h3 {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+.mini-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.mini-cell {
+    aspect-ratio: 1;
+    background: #f0f0f0;
+    border-radius: 2px;
+    position: relative;
+}
+.mini-cell.empty {
+    background: transparent;
+}
+
+.mini-period,
+.mini-migraine {
+    position: absolute;
+    font-size: 10px;
+    line-height: 2;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mini-period {
+    top: 3px;
+    right: 3px;
+}
+.mini-migraine {
+    bottom: 3px;
+    left: 3px;
+}
+
 .login-box {
     background: white;
     border: 1px solid #ddd;

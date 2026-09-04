@@ -197,12 +197,17 @@ document.querySelector('#app').innerHTML = `
       </section>
 
       <section id="calendar-page" class="page">
+  <div class="calendar-view-toggle">
+    <button type="button" id="monthViewButton" class="secondary-button active-view">Month</button>
+    <button type="button" id="yearViewButton" class="secondary-button">Year</button>
+  </div>
   <div class="calendar-header">
     <button type="button" id="prevMonth" class="secondary-button">←</button>
     <h2 id="calendarMonthLabel"></h2>
     <button type="button" id="nextMonth" class="secondary-button">→</button>
   </div>
   <div id="calendarGrid" class="calendar-grid"></div>
+  <div id="calendarYearGrid" class="calendar-year-grid" style="display:none"></div>
   <div id="calendarDetail"></div>
 </section>
 
@@ -368,6 +373,7 @@ function entryToHistoryCard(entry) {
 loadHistory()
 
 let calendarViewDate = new Date()
+let calendarView = 'month'
 
 let editingEntryId = null
 
@@ -516,14 +522,116 @@ async function renderCalendar() {
 }
 
 document.querySelector('#prevMonth').addEventListener('click', () => {
-    calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1)
-    renderCalendar()
+    if (calendarView === 'month') {
+        calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1)
+        renderCalendar()
+    } else {
+        calendarViewDate = new Date(calendarViewDate.getFullYear() - 1, calendarViewDate.getMonth(), 1)
+        renderYear()
+    }
 })
 
 document.querySelector('#nextMonth').addEventListener('click', () => {
-    calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1)
+    if (calendarView === 'month') {
+        calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1)
+        renderCalendar()
+    } else {
+        calendarViewDate = new Date(calendarViewDate.getFullYear() + 1, calendarViewDate.getMonth(), 1)
+        renderYear()
+    }
+})
+
+document.querySelector('#monthViewButton').addEventListener('click', () => {
+    calendarView = 'month'
+    document.querySelector('#monthViewButton').classList.add('active-view')
+    document.querySelector('#yearViewButton').classList.remove('active-view')
+    document.querySelector('#calendarGrid').style.display = 'grid'
+    document.querySelector('#calendarYearGrid').style.display = 'none'
     renderCalendar()
 })
+
+document.querySelector('#yearViewButton').addEventListener('click', () => {
+    calendarView = 'year'
+    document.querySelector('#yearViewButton').classList.add('active-view')
+    document.querySelector('#monthViewButton').classList.remove('active-view')
+    document.querySelector('#calendarGrid').style.display = 'none'
+    document.querySelector('#calendarYearGrid').style.display = 'grid'
+    renderYear()
+})
+
+function switchToMonth(year, month) {
+    calendarViewDate = new Date(year, month, 1)
+    calendarView = 'month'
+    document.querySelector('#monthViewButton').classList.add('active-view')
+    document.querySelector('#yearViewButton').classList.remove('active-view')
+    document.querySelector('#calendarGrid').style.display = 'grid'
+    document.querySelector('#calendarYearGrid').style.display = 'none'
+    renderCalendar()
+}
+
+async function renderYear() {
+    const label = document.querySelector('#calendarMonthLabel')
+    const yearGrid = document.querySelector('#calendarYearGrid')
+
+    const year = calendarViewDate.getFullYear()
+    label.textContent = String(year)
+
+    const startOfYear = `${year}-01-01`
+    const endOfYear = `${year}-12-31`
+
+    const { data, error } = await supabase
+        .from('entries')
+        .select('*')
+        .gte('entry_date', startOfYear)
+        .lte('entry_date', endOfYear)
+
+    const entriesByDate = {}
+    if (!error && data) {
+        data.forEach(entry => { entriesByDate[entry.entry_date] = entry })
+    }
+
+    let monthsHtml = ''
+
+    for (let month = 0; month < 12; month++) {
+        const monthName = new Date(year, month, 1).toLocaleDateString(undefined, { month: 'short' })
+        const daysInMonth = new Date(year, month + 1, 0).getDate()
+        const firstDay = new Date(year, month, 1)
+        const startOffset = (firstDay.getDay() + 6) % 7
+
+        let dayCells = ''
+        for (let i = 0; i < startOffset; i++) {
+            dayCells += '<span class="mini-cell empty"></span>'
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = [year, String(month + 1).padStart(2, '0'), String(day).padStart(2, '0')].join('-')
+            const entry = entriesByDate[dateStr]
+            const color = entry ? painToColor(entry.pain_level) : null
+
+            dayCells += `
+              <span class="mini-cell" style="${color ? `background:${color}` : ''}">
+                ${entry?.had_period ? '<span class="mini-period">🩸</span>' : ''}
+                ${entry?.headache_type === 'migraine' ? '<span class="mini-migraine">⚡</span>' : ''}
+              </span>
+            `
+        }
+
+        monthsHtml += `
+          <div class="mini-month" data-month="${month}">
+            <h3>${monthName}</h3>
+            <div class="mini-grid">${dayCells}</div>
+          </div>
+        `
+    }
+
+    yearGrid.innerHTML = monthsHtml
+
+    yearGrid.querySelectorAll('.mini-month').forEach(monthEl => {
+        monthEl.addEventListener('click', () => {
+            switchToMonth(year, parseInt(monthEl.dataset.month, 10))
+        })
+    })
+}
 
 renderCalendar()
 
