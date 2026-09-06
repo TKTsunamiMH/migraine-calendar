@@ -390,7 +390,9 @@ function entryToHistoryCard(entry) {
         </div>
         <p class="history-location">${entry.location_name ?? ''}</p>
         ${rows}
-        <button type="button" class="secondary-button edit-entry-button" data-id="${entry.id}">Edit</button>
+        <div class="history-card-footer">
+          <button type="button" class="secondary-button edit-entry-button" data-id="${entry.id}">Edit</button>
+        </div>
       </div>
     `
 }
