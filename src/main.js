@@ -111,20 +111,22 @@ document.querySelector('#app').innerHTML = `
   </p>
 </div>
 
-            <label class="wide">
-              Breakfast
-              <textarea id="breakfast" placeholder="What did you eat?"></textarea>
-            </label>
+            <div class="wide food-row">
+              <label>
+                Breakfast
+                <textarea id="breakfast" placeholder="What did you eat?"></textarea>
+              </label>
 
-            <label class="wide">
-              Lunch
-              <textarea id="lunch" placeholder="What did you eat?"></textarea>
-            </label>
+              <label>
+                Lunch
+                <textarea id="lunch" placeholder="What did you eat?"></textarea>
+              </label>
 
-            <label class="wide">
-              Other food
-              <textarea id="otherFood" placeholder="Dinner, snacks, drinks..."></textarea>
-            </label>
+              <label>
+                Other food
+                <textarea id="otherFood" placeholder="Dinner, snacks, drinks..."></textarea>
+              </label>
+            </div>
 
             <label>
               Water (liters)
@@ -186,7 +188,7 @@ document.querySelector('#app').innerHTML = `
               </select>
             </label>
 
-            <div class="weather-card wide">
+            <div class="weather-card">
               <h3>Weather</h3>
               <p id="weatherStatus">Weather connection will be added next.</p>
               <button type="button" id="weatherButton" class="secondary-button">
@@ -194,7 +196,7 @@ document.querySelector('#app').innerHTML = `
               </button>
             </div>
 
-            <label class="wide">
+            <label>
               Notes
               <textarea id="notes" placeholder="Stress, exercise, symptoms, anything unusual..."></textarea>
             </label>

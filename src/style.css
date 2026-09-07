@@ -189,19 +189,7 @@ textarea {
     margin-bottom: 0;
 }
 
-@media (max-width: 650px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
 
-    .wide {
-        grid-column: auto;
-    }
-
-    .app-container {
-        padding: 20px 14px 40px;
-    }
-}
 
 #locationResults {
     margin-top: 12px;
@@ -427,4 +415,33 @@ textarea {
     flex-direction: column;
     gap: 14px;
     text-align: left;
+}
+
+.food-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+.food-row textarea,
+.weather-card + label textarea,
+#notes {
+    min-height: 60px;
+}
+
+@media (max-width: 650px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wide {
+        grid-column: auto;
+    }
+
+    .app-container {
+        padding: 20px 14px 40px;
+    }
+
+    .food-row {
+        grid-template-columns: 1fr;
+    }
 }
