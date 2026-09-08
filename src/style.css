@@ -293,6 +293,10 @@ textarea {
 .calendar-pain {
     align-self: flex-end;
     font-weight: bold;
+    color: #1a1a1a;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 4px;
+    padding: 0 4px;
 }
 
 #calendarDetail {
