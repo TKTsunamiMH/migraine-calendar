@@ -226,7 +226,37 @@ document.querySelector('#app').innerHTML = `
 
       <section id="history-page" class="page">
         <h2>History</h2>
-        <p>Your saved entries will appear here.</p>
+        <div class="filter-panel">
+          <label>
+            Min pain level
+            <select id="filterPain">
+              <option value="">Any</option>
+              <option value="0">0+</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+              <option value="5">5+</option>
+              <option value="6">6+</option>
+              <option value="7">7+</option>
+              <option value="8">8+</option>
+              <option value="9">9+</option>
+              <option value="10">10</option>
+            </select>
+          </label>
+          <label>
+            Food
+            <select id="filterFood">
+              <option value="">Any</option>
+            </select>
+          </label>
+          <label class="filter-checkbox">
+            <input type="checkbox" id="filterFoodNextDay">
+            Also show the day after
+          </label>
+          <button type="button" id="clearFiltersButton" class="secondary-button">Clear filters</button>
+        </div>
+        <div id="historyResults"></div>
       </section>
     </main>
   </div>
@@ -337,7 +367,7 @@ updateDarkModeButtonLabel()
 let historyEntries = []
 
 async function loadHistory() {
-    const historyPage = document.querySelector('#history-page')
+    const resultsBox = document.querySelector('#historyResults')
 
     const { data, error } = await supabase
         .from('entries')
@@ -345,31 +375,209 @@ async function loadHistory() {
         .order('entry_date', { ascending: false })
 
     if (error) {
-        historyPage.innerHTML = '<h2>History</h2><p>Could not load entries.</p>'
+        resultsBox.innerHTML = '<p>Could not load entries.</p>'
         return
     }
 
     historyEntries = data ?? []
 
+    populateFoodFilter()
+    renderFilteredHistory()
+}
+
+function renderFilteredHistory() {
+    const resultsBox = document.querySelector('#historyResults')
+
     if (historyEntries.length === 0) {
-        historyPage.innerHTML = '<h2>History</h2><p>No entries yet.</p>'
+        resultsBox.innerHTML = '<p>No entries yet.</p>'
         return
     }
 
-    historyPage.innerHTML = `
-      <h2>History</h2>
+    resultsBox.innerHTML = `
       <div class="history-list">
         ${historyEntries.map(entryToHistoryCard).join('')}
       </div>
     `
 
-    historyPage.querySelectorAll('.edit-entry-button').forEach(button => {
+    resultsBox.querySelectorAll('.edit-entry-button').forEach(button => {
         button.addEventListener('click', () => {
             const entry = historyEntries.find(e => e.id === button.dataset.id)
             if (entry) loadEntryIntoForm(entry)
         })
     })
 }
+
+function extractFoodItems(entries) {
+    const items = new Set()
+
+    entries.forEach(entry => {
+        [entry.breakfast, entry.lunch, entry.other_food].forEach(field => {
+            if (!field) return
+            field.split(/[,\n]/).forEach(item => {
+                const cleaned = item.trim()
+                if (cleaned) items.add(cleaned)
+            })
+        })
+    })
+
+    return Array.from(items).sort((a, b) => a.localeCompare(b))
+}
+
+function populateFoodFilter() {
+    const select = document.querySelector('#filterFood')
+    const currentValue = select.value
+    const items = extractFoodItems(historyEntries)
+
+    select.innerHTML = '<option value="">Any</option>' +
+        items.map(item => `<option value="${item}">${item}</option>`).join('')
+
+    select.value = currentValue
+}
+
+function entryHasFood(entry, foodTerm) {
+    const haystack = [entry.breakfast, entry.lunch, entry.other_food].filter(Boolean).join(' ').toLowerCase()
+    return haystack.includes(foodTerm.toLowerCase())
+}
+
+function getPreviousDate(dateStr) {
+    const date = new Date(dateStr)
+    date.setDate(date.getDate() - 1)
+    return date.toISOString().slice(0, 10)
+}
+
+function applyFilters() {
+    const minPain = document.querySelector('#filterPain').value
+    const foodTerm = document.querySelector('#filterFood').value
+    const includeNextDay = document.querySelector('#filterFoodNextDay').checked
+
+    let filtered = historyEntries
+
+    if (minPain !== '') {
+        filtered = filtered.filter(entry => entry.pain_level >= parseInt(minPain, 10))
+    }
+
+    if (foodTerm && includeNextDay) {
+        renderFoodPairs(foodTerm)
+        return
+    }
+
+    if (foodTerm) {
+        filtered = filtered.filter(entry => entryHasFood(entry, foodTerm))
+    }
+
+    const resultsBox = document.querySelector('#historyResults')
+
+    if (filtered.length === 0) {
+        resultsBox.innerHTML = '<p>No entries match these filters.</p>'
+        return
+    }
+
+    resultsBox.innerHTML = `
+      <div class="history-list">
+        ${filtered.map(entryToHistoryCard).join('')}
+      </div>
+    `
+
+    resultsBox.querySelectorAll('.edit-entry-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const entry = historyEntries.find(e => e.id === button.dataset.id)
+            if (entry) loadEntryIntoForm(entry)
+        })
+    })
+}
+
+let foodPairEntriesByDate = {}
+let foodPairAnchors = []
+
+function shiftDate(dateStr, days) {
+    const d = new Date(dateStr)
+    d.setDate(d.getDate() + days)
+    return d.toISOString().slice(0, 10)
+}
+
+function renderFoodPairGroup(index) {
+    const anchorDate = foodPairAnchors[index]
+    const nextDate = shiftDate(anchorDate, 1)
+
+    const leftEntry = foodPairEntriesByDate[anchorDate]
+    const rightEntry = foodPairEntriesByDate[nextDate]
+
+    return `
+      <div class="food-pair" data-index="${index}">
+        <button type="button" class="secondary-button food-pair-arrow" data-index="${index}" data-direction="-1">←</button>
+        <div class="food-pair-columns">
+          <div class="food-pair-item">
+            <span class="food-pair-label">${anchorDate}</span>
+            ${leftEntry ? entryToHistoryCard(leftEntry) : '<p class="food-pair-empty">No entry for this day.</p>'}
+          </div>
+          <div class="food-pair-item">
+            <span class="food-pair-label">${nextDate}</span>
+            ${rightEntry ? entryToHistoryCard(rightEntry) : '<p class="food-pair-empty">No entry for this day.</p>'}
+          </div>
+        </div>
+        <button type="button" class="secondary-button food-pair-arrow" data-index="${index}" data-direction="1">→</button>
+      </div>
+    `
+}
+
+function attachFoodPairListeners(container) {
+    container.querySelectorAll('.edit-entry-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const entry = historyEntries.find(e => e.id === button.dataset.id)
+            if (entry) loadEntryIntoForm(entry)
+        })
+    })
+
+    container.querySelectorAll('.food-pair-arrow').forEach(button => {
+        button.addEventListener('click', () => {
+            const index = parseInt(button.dataset.index, 10)
+            const direction = parseInt(button.dataset.direction, 10)
+
+            foodPairAnchors[index] = shiftDate(foodPairAnchors[index], direction)
+
+            const groupEl = container.querySelector(`.food-pair[data-index="${index}"]`)
+            groupEl.outerHTML = renderFoodPairGroup(index)
+            attachFoodPairListeners(container)
+        })
+    })
+}
+
+function renderFoodPairs(foodTerm) {
+    const matchingDates = historyEntries
+        .filter(entry => entryHasFood(entry, foodTerm))
+        .map(entry => entry.entry_date)
+        .sort()
+        .reverse()
+
+    foodPairEntriesByDate = {}
+    historyEntries.forEach(entry => { foodPairEntriesByDate[entry.entry_date] = entry })
+
+    foodPairAnchors = matchingDates
+
+    const resultsBox = document.querySelector('#historyResults')
+
+    if (matchingDates.length === 0) {
+        resultsBox.innerHTML = '<p>No entries match these filters.</p>'
+        return
+    }
+
+    const groupsHtml = matchingDates.map((_, index) => renderFoodPairGroup(index)).join('')
+
+    resultsBox.innerHTML = `<div class="food-pair-list">${groupsHtml}</div>`
+
+    attachFoodPairListeners(resultsBox)
+}
+
+document.querySelector('#filterPain').addEventListener('change', applyFilters)
+document.querySelector('#filterFood').addEventListener('change', applyFilters)
+document.querySelector('#filterFoodNextDay').addEventListener('change', applyFilters)
+
+document.querySelector('#clearFiltersButton').addEventListener('click', () => {
+    document.querySelector('#filterPain').value = ''
+    document.querySelector('#filterFood').value = ''
+    document.querySelector('#filterFoodNextDay').checked = false
+    renderFilteredHistory()
+})
 
 function entryToHistoryCard(entry) {
     const rows = [
