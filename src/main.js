@@ -250,8 +250,14 @@ document.querySelector('#app').innerHTML = `
               <option value="">Any</option>
             </select>
           </label>
+          <label>
+            Notes
+            <select id="filterNotes">
+              <option value="">Any</option>
+            </select>
+          </label>
           <label class="filter-checkbox">
-            <input type="checkbox" id="filterFoodNextDay">
+            <input type="checkbox" id="filterNextDay">
             Also show the day after
           </label>
           <button type="button" id="clearFiltersButton" class="secondary-button">Clear filters</button>
@@ -382,6 +388,7 @@ async function loadHistory() {
     historyEntries = data ?? []
 
     populateFoodFilter()
+    populateNotesFilter()
     renderFilteredHistory()
 }
 
@@ -439,6 +446,36 @@ function entryHasFood(entry, foodTerm) {
     return haystack.includes(foodTerm.toLowerCase())
 }
 
+function extractNoteItems(entries) {
+    const items = new Set()
+
+    entries.forEach(entry => {
+        if (!entry.notes) return
+        entry.notes.split(';').forEach(item => {
+            const cleaned = item.trim()
+            if (cleaned) items.add(cleaned)
+        })
+    })
+
+    return Array.from(items).sort((a, b) => a.localeCompare(b))
+}
+
+function populateNotesFilter() {
+    const select = document.querySelector('#filterNotes')
+    const currentValue = select.value
+    const items = extractNoteItems(historyEntries)
+
+    select.innerHTML = '<option value="">Any</option>' +
+        items.map(item => `<option value="${item}">${item}</option>`).join('')
+
+    select.value = currentValue
+}
+
+function entryHasNote(entry, noteTerm) {
+    if (!entry.notes) return false
+    return entry.notes.toLowerCase().includes(noteTerm.toLowerCase())
+}
+
 function getPreviousDate(dateStr) {
     const date = new Date(dateStr)
     date.setDate(date.getDate() - 1)
@@ -448,7 +485,18 @@ function getPreviousDate(dateStr) {
 function applyFilters() {
     const minPain = document.querySelector('#filterPain').value
     const foodTerm = document.querySelector('#filterFood').value
-    const includeNextDay = document.querySelector('#filterFoodNextDay').checked
+    const noteTerm = document.querySelector('#filterNotes').value
+    const includeNextDay = document.querySelector('#filterNextDay').checked
+
+    if (foodTerm && includeNextDay) {
+        renderTermPairs(foodTerm, entryHasFood)
+        return
+    }
+
+    if (noteTerm && includeNextDay) {
+        renderTermPairs(noteTerm, entryHasNote)
+        return
+    }
 
     let filtered = historyEntries
 
@@ -456,9 +504,8 @@ function applyFilters() {
         filtered = filtered.filter(entry => entry.pain_level >= parseInt(minPain, 10))
     }
 
-    if (foodTerm && includeNextDay) {
-        renderFoodPairs(foodTerm)
-        return
+    if (noteTerm) {
+        filtered = filtered.filter(entry => entryHasNote(entry, noteTerm))
     }
 
     if (foodTerm) {
@@ -542,9 +589,9 @@ function attachFoodPairListeners(container) {
     })
 }
 
-function renderFoodPairs(foodTerm) {
+function renderTermPairs(term, matchFn) {
     const matchingDates = historyEntries
-        .filter(entry => entryHasFood(entry, foodTerm))
+        .filter(entry => matchFn(entry, term))
         .map(entry => entry.entry_date)
         .sort()
         .reverse()
@@ -570,12 +617,14 @@ function renderFoodPairs(foodTerm) {
 
 document.querySelector('#filterPain').addEventListener('change', applyFilters)
 document.querySelector('#filterFood').addEventListener('change', applyFilters)
-document.querySelector('#filterFoodNextDay').addEventListener('change', applyFilters)
+document.querySelector('#filterNotes').addEventListener('change', applyFilters)
+document.querySelector('#filterNextDay').addEventListener('change', applyFilters)
 
 document.querySelector('#clearFiltersButton').addEventListener('click', () => {
     document.querySelector('#filterPain').value = ''
     document.querySelector('#filterFood').value = ''
-    document.querySelector('#filterFoodNextDay').checked = false
+    document.querySelector('#filterNotes').value = ''
+    document.querySelector('#filterNextDay').checked = false
     renderFilteredHistory()
 })
 
