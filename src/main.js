@@ -174,6 +174,11 @@ document.querySelector('#app').innerHTML = `
             </label>
 
             <label>
+              Andere Symptome
+              <textarea id="otherSymptoms" placeholder="List symptoms separated by commas (e.g., Nausea, Sensitivity to light, Fatigue)"></textarea>
+            </label>
+
+            <label>
               Medicine
               <input type="text" id="medicine" placeholder="Example: Sumatriptan">
             </label>
@@ -256,6 +261,12 @@ document.querySelector('#app').innerHTML = `
               <option value="">Any</option>
             </select>
           </label>
+          <label>
+            Andere Symptome
+            <select id="filterSymptoms">
+              <option value="">Any</option>
+            </select>
+          </label>
           <label class="filter-checkbox">
             <input type="checkbox" id="filterNextDay">
             Also show the day after
@@ -316,6 +327,7 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
         had_period: document.querySelector('#hadPeriod').value === '' ? null : document.querySelector('#hadPeriod').value === 'yes',
         headache_type: document.querySelector('#headacheType').value,
         pain_level: parseInt(document.querySelector('#painLevel').value, 10),
+        other_symptoms: document.querySelector('#otherSymptoms').value,
         medicine: document.querySelector('#medicine').value,
         medicine_helped: document.querySelector('#medicineHelped').value || null,
         notes: document.querySelector('#notes').value,
@@ -389,6 +401,7 @@ async function loadHistory() {
 
     populateFoodFilter()
     populateNotesFilter()
+    populateSymptomFilter()
     renderFilteredHistory()
 }
 
@@ -476,6 +489,36 @@ function entryHasNote(entry, noteTerm) {
     return entry.notes.toLowerCase().includes(noteTerm.toLowerCase())
 }
 
+function extractSymptomItems(entries) {
+    const items = new Set()
+
+    entries.forEach(entry => {
+        if (!entry.other_symptoms) return
+        entry.other_symptoms.split(/[,\n]/).forEach(item => {
+            const cleaned = item.trim()
+            if (cleaned) items.add(cleaned)
+        })
+    })
+
+    return Array.from(items).sort((a, b) => a.localeCompare(b))
+}
+
+function populateSymptomFilter() {
+    const select = document.querySelector('#filterSymptoms')
+    const currentValue = select.value
+    const items = extractSymptomItems(historyEntries)
+
+    select.innerHTML = '<option value="">Any</option>' +
+        items.map(item => `<option value="${item}">${item}</option>`).join('')
+
+    select.value = currentValue
+}
+
+function entryHasSymptom(entry, symptomTerm) {
+    if (!entry.other_symptoms) return false
+    return entry.other_symptoms.toLowerCase().includes(symptomTerm.toLowerCase())
+}
+
 function getPreviousDate(dateStr) {
     const date = new Date(dateStr)
     date.setDate(date.getDate() - 1)
@@ -486,6 +529,7 @@ function applyFilters() {
     const minPain = document.querySelector('#filterPain').value
     const foodTerm = document.querySelector('#filterFood').value
     const noteTerm = document.querySelector('#filterNotes').value
+    const symptomTerm = document.querySelector('#filterSymptoms').value
     const includeNextDay = document.querySelector('#filterNextDay').checked
 
     if (foodTerm && includeNextDay) {
@@ -498,6 +542,11 @@ function applyFilters() {
         return
     }
 
+    if (symptomTerm && includeNextDay) {
+        renderTermPairs(symptomTerm, entryHasSymptom)
+        return
+    }
+
     let filtered = historyEntries
 
     if (minPain !== '') {
@@ -506,6 +555,10 @@ function applyFilters() {
 
     if (noteTerm) {
         filtered = filtered.filter(entry => entryHasNote(entry, noteTerm))
+    }
+
+    if (symptomTerm) {
+        filtered = filtered.filter(entry => entryHasSymptom(entry, symptomTerm))
     }
 
     if (foodTerm) {
@@ -618,12 +671,14 @@ function renderTermPairs(term, matchFn) {
 document.querySelector('#filterPain').addEventListener('change', applyFilters)
 document.querySelector('#filterFood').addEventListener('change', applyFilters)
 document.querySelector('#filterNotes').addEventListener('change', applyFilters)
+document.querySelector('#filterSymptoms').addEventListener('change', applyFilters)
 document.querySelector('#filterNextDay').addEventListener('change', applyFilters)
 
 document.querySelector('#clearFiltersButton').addEventListener('click', () => {
     document.querySelector('#filterPain').value = ''
     document.querySelector('#filterFood').value = ''
     document.querySelector('#filterNotes').value = ''
+    document.querySelector('#filterSymptoms').value = ''
     document.querySelector('#filterNextDay').checked = false
     renderFilteredHistory()
 })
@@ -637,6 +692,7 @@ function entryToHistoryCard(entry) {
         (entry.sleep_hours != null) && `<p><strong>Sleep:</strong> ${entry.sleep_hours} h</p>`,
         (entry.had_period != null) && `<p><strong>Period:</strong> ${entry.had_period ? 'Yes' : 'No'}</p>`,
         entry.medicine && `<p><strong>Medicine:</strong> ${entry.medicine} ${entry.medicine_helped ? '(' + entry.medicine_helped + ')' : ''}</p>`,
+        entry.other_symptoms && `<p><strong>Andere Symptome:</strong> ${entry.other_symptoms}</p>`,
         entry.notes && `<p><strong>Notes:</strong> ${entry.notes}</p>`,
         entry.weather_description && `<p><strong>Weather:</strong> ${entry.weather_description}${(entry.temp_min != null && entry.temp_max != null) ? `, ${entry.temp_min.toFixed(1)}–${entry.temp_max.toFixed(1)}°C` : ''}${entry.precipitation != null ? `, ${entry.precipitation.toFixed(1)}mm rain` : ''}${entry.humidity_avg != null ? `, ${entry.humidity_avg.toFixed(0)}% humidity` : ''}${entry.pressure_avg != null ? `, ${entry.pressure_avg.toFixed(0)}hPa` : ''}</p>`
     ].filter(Boolean).join('')
@@ -677,6 +733,7 @@ function loadEntryIntoForm(entry) {
     document.querySelector('#headacheType').value = entry.headache_type ?? 'none'
     document.querySelector('#painLevel').value = entry.pain_level ?? 0
     document.querySelector('#painValue').textContent = entry.pain_level ?? 0
+    document.querySelector('#otherSymptoms').value = entry.other_symptoms ?? ''
     document.querySelector('#medicine').value = entry.medicine ?? ''
     document.querySelector('#medicineHelped').value = entry.medicine_helped ?? ''
     document.querySelector('#notes').value = entry.notes ?? ''
