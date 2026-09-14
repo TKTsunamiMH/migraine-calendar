@@ -70,6 +70,7 @@ document.querySelector('#app').innerHTML = `
       <button class="nav-button active" data-page="entry">Today</button>
       <button class="nav-button" data-page="calendar">Calendar</button>
       <button class="nav-button" data-page="history">History</button>
+      <button class="nav-button" data-page="profile">Profile</button>
     </nav>
 
     <main>
@@ -275,6 +276,76 @@ document.querySelector('#app').innerHTML = `
         </div>
         <div id="historyResults"></div>
       </section>
+            <section id="profile-page" class="page">
+        <h2>Profile</h2>
+
+        <div id="profileViewMode">
+          <div class="profile-display">
+            <p><strong>Age:</strong> <span id="displayAge">Not specified</span></p>
+            <p><strong>Height:</strong> <span id="displayHeight">Not specified</span></p>
+            <p><strong>Weight:</strong> <span id="displayWeight">Not specified</span></p>
+            <p><strong>Does sport?:</strong> <span id="displayDoesSport">Not specified</span></p>
+            <p><strong>Sport frequency / type:</strong> <span id="displaySportFrequency">Not specified</span></p>
+            <p><strong>Migraine in family?:</strong> <span id="displayMigraineFamily">Not specified</span></p>
+            <p><strong>Family notes:</strong> <span id="displayFamilyNotes">Not specified</span></p>
+          </div>
+          <button type="button" id="profileEditButton" class="save-button">Edit Profile</button>
+        </div>
+
+        <form id="profile-form" style="display:none">
+          <div class="form-grid">
+
+            <label>
+              Age
+              <input type="number" id="profileAge" min="0" max="120">
+            </label>
+
+            <label>
+              Height (cm)
+              <input type="number" id="profileHeight" min="0" step="0.1">
+            </label>
+
+            <label>
+              Weight (kg)
+              <input type="number" id="profileWeight" min="0" step="0.1">
+            </label>
+
+            <label>
+              Does sport?
+              <select id="profileDoesSport">
+                <option value="">Not specified</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </label>
+
+            <label class="wide">
+              Sport frequency / type
+              <input type="text" id="profileSportFrequency" placeholder="e.g. Running 2x/week">
+            </label>
+
+            <label>
+              Migraine in family?
+              <select id="profileMigraineFamily">
+                <option value="">Not specified</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </label>
+
+            <label class="wide">
+              Family notes
+              <textarea id="profileFamilyNotes" placeholder="Who, any details..."></textarea>
+            </label>
+
+          </div>
+
+          <button class="save-button" type="submit">Save Profile</button>
+          <button type="button" id="profileCancelButton" class="secondary-button">Cancel</button>
+          <p id="profileSaveMessage"></p>
+        </form>
+      </section>
+    </main>
     </main>
   </div>
 `
@@ -977,6 +1048,153 @@ async function renderYear() {
 }
 
 renderCalendar()
+
+// Profile management functions
+async function loadProfileData() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user) {
+            console.error('No user logged in')
+            return
+        }
+
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', user.id)
+            .single()
+
+        if (error && error.code !== 'PGRST116') {
+            // PGRST116 is "no rows found" which is okay for new users
+            console.error('Error loading profile:', error)
+            return
+        }
+
+        if (data) {
+            // Populate form fields
+            document.querySelector('#profileAge').value = data.age ?? ''
+            document.querySelector('#profileHeight').value = data.height_cm ?? ''
+            document.querySelector('#profileWeight').value = data.weight_kg ?? ''
+            document.querySelector('#profileDoesSport').value = data.does_sport === null ? '' : (data.does_sport ? 'yes' : 'no')
+            document.querySelector('#profileSportFrequency').value = data.sport_frequency ?? ''
+            document.querySelector('#profileMigraineFamily').value = data.migraine_in_family === null ? '' : (data.migraine_in_family ? 'yes' : 'no')
+            document.querySelector('#profileFamilyNotes').value = data.family_notes ?? ''
+
+            // Update display view
+            updateProfileDisplay(data)
+        } else {
+            // New user, clear the display
+            clearProfileDisplay()
+        }
+    } catch (error) {
+        console.error('Error loading profile:', error)
+    }
+}
+
+function updateProfileDisplay(data) {
+    document.querySelector('#displayAge').textContent = data.age ? `${data.age} years` : 'Not specified'
+    document.querySelector('#displayHeight').textContent = data.height_cm ? `${data.height_cm} cm` : 'Not specified'
+    document.querySelector('#displayWeight').textContent = data.weight_kg ? `${data.weight_kg} kg` : 'Not specified'
+    document.querySelector('#displayDoesSport').textContent = data.does_sport === null ? 'Not specified' : (data.does_sport ? 'Yes' : 'No')
+    document.querySelector('#displaySportFrequency').textContent = data.sport_frequency || 'Not specified'
+    document.querySelector('#displayMigraineFamily').textContent = data.migraine_in_family === null ? 'Not specified' : (data.migraine_in_family ? 'Yes' : 'No')
+    document.querySelector('#displayFamilyNotes').textContent = data.family_notes || 'Not specified'
+}
+
+function clearProfileDisplay() {
+    document.querySelector('#displayAge').textContent = 'Not specified'
+    document.querySelector('#displayHeight').textContent = 'Not specified'
+    document.querySelector('#displayWeight').textContent = 'Not specified'
+    document.querySelector('#displayDoesSport').textContent = 'Not specified'
+    document.querySelector('#displaySportFrequency').textContent = 'Not specified'
+    document.querySelector('#displayMigraineFamily').textContent = 'Not specified'
+    document.querySelector('#displayFamilyNotes').textContent = 'Not specified'
+}
+
+function switchToProfileEditMode() {
+    document.querySelector('#profileViewMode').style.display = 'none'
+    document.querySelector('#profile-form').style.display = 'block'
+}
+
+function switchToProfileViewMode() {
+    document.querySelector('#profileViewMode').style.display = 'block'
+    document.querySelector('#profile-form').style.display = 'none'
+}
+
+async function saveProfileData(event) {
+    event.preventDefault()
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user) {
+            console.error('No user logged in')
+            return
+        }
+
+        const saveMessage = document.querySelector('#profileSaveMessage')
+        saveMessage.textContent = 'Saving...'
+
+        const doesSportValue = document.querySelector('#profileDoesSport').value
+        const migraineValue = document.querySelector('#profileMigraineFamily').value
+
+        const profileData = {
+            user_id: user.id,
+            age: document.querySelector('#profileAge').value ? parseInt(document.querySelector('#profileAge').value, 10) : null,
+            height_cm: document.querySelector('#profileHeight').value ? parseFloat(document.querySelector('#profileHeight').value) : null,
+            weight_kg: document.querySelector('#profileWeight').value ? parseFloat(document.querySelector('#profileWeight').value) : null,
+            does_sport: doesSportValue ? (doesSportValue === 'yes') : null,
+            sport_frequency: document.querySelector('#profileSportFrequency').value || null,
+            migraine_in_family: migraineValue ? (migraineValue === 'yes') : null,
+            family_notes: document.querySelector('#profileFamilyNotes').value || null,
+            updated_at: new Date().toISOString()
+        }
+
+        // Try to update first, if no rows affected, insert instead
+        const { error: updateError, count } = await supabase
+            .from('profiles')
+            .update(profileData)
+            .eq('user_id', user.id)
+
+        if (updateError) {
+            throw updateError
+        }
+
+        // If no rows were updated, insert a new profile
+        if (count === 0) {
+            const { error: insertError } = await supabase
+                .from('profiles')
+                .insert(profileData)
+
+            if (insertError) {
+                throw insertError
+            }
+        }
+
+        saveMessage.textContent = 'Profile saved!'
+        updateProfileDisplay(profileData)
+        switchToProfileViewMode()
+
+        setTimeout(() => {
+            saveMessage.textContent = ''
+        }, 3000)
+    } catch (error) {
+        console.error('Error saving profile:', error)
+        document.querySelector('#profileSaveMessage').textContent = 'Error saving profile. Please try again.'
+    }
+}
+
+// Load profile when page loads
+loadProfileData()
+
+// Profile form event listeners
+document.querySelector('#profileEditButton').addEventListener('click', switchToProfileEditMode)
+document.querySelector('#profileCancelButton').addEventListener('click', () => {
+    switchToProfileViewMode()
+    loadProfileData() // Reload to discard changes
+})
+document.querySelector('#profile-form').addEventListener('submit', saveProfileData)
 
 function getWeatherDescription(code) {
     const weatherCodes = {
