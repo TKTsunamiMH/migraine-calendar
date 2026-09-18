@@ -70,6 +70,7 @@ document.querySelector('#app').innerHTML = `
       <button class="nav-button active" data-page="entry">Today</button>
       <button class="nav-button" data-page="calendar">Calendar</button>
       <button class="nav-button" data-page="history">History</button>
+      <button class="nav-button" data-page="stats">Stats</button>
       <button class="nav-button" data-page="profile">Profile</button>
     </nav>
 
@@ -345,7 +346,29 @@ document.querySelector('#app').innerHTML = `
           <p id="profileSaveMessage"></p>
         </form>
       </section>
-    </main>
+      <section id="stats-page" class="page">
+        <h2>Stats</h2>
+        <div id="statsOverview" class="stats-overview"></div>
+
+        <div class="stats-triggers">
+          <div class="stats-trigger-column">
+            <h3>Top foods before high-pain days</h3>
+            <div id="statsFoodBeforeTriggers"></div>
+          </div>
+          <div class="stats-trigger-column">
+            <h3>Top foods on high-pain days</h3>
+            <div id="statsFoodTriggers"></div>
+          </div>
+          <div class="stats-trigger-column">
+            <h3>Top notes on high-pain days</h3>
+            <div id="statsNoteTriggers"></div>
+          </div>
+          <div class="stats-trigger-column">
+            <h3>Top symptoms on high-pain days</h3>
+            <div id="statsSymptomTriggers"></div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 `
@@ -474,6 +497,7 @@ async function loadHistory() {
     populateNotesFilter()
     populateSymptomFilter()
     renderFilteredHistory()
+    renderStats()
 }
 
 function renderFilteredHistory() {
@@ -850,6 +874,125 @@ function cancelEdit() {
 }
 
 document.querySelector('#cancelEditButton').addEventListener('click', cancelEdit)
+
+const HIGH_PAIN_THRESHOLD = 5
+
+function average(numbers) {
+    if (numbers.length === 0) return null
+    return numbers.reduce((sum, n) => sum + n, 0) / numbers.length
+}
+
+function countItemsOnHighPainDays(entries, fieldSplitter) {
+    const counts = {}
+
+    entries
+        .filter(entry => entry.pain_level >= HIGH_PAIN_THRESHOLD)
+        .forEach(entry => {
+            fieldSplitter(entry).forEach(item => {
+                const cleaned = item.trim()
+                if (!cleaned) return
+                counts[cleaned] = (counts[cleaned] || 0) + 1
+            })
+        })
+
+    return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+}
+
+function countItemsBeforeHighPainDays(entries, fieldSplitter) {
+    const counts = {}
+    const entriesByDate = {}
+    entries.forEach(entry => { entriesByDate[entry.entry_date] = entry })
+
+    entries
+        .filter(entry => entry.pain_level >= HIGH_PAIN_THRESHOLD)
+        .forEach(entry => {
+            const previousDate = shiftDate(entry.entry_date, -1)
+            const previousEntry = entriesByDate[previousDate]
+            if (!previousEntry) return
+
+            fieldSplitter(previousEntry).forEach(item => {
+                const cleaned = item.trim()
+                if (!cleaned) return
+                counts[cleaned] = (counts[cleaned] || 0) + 1
+            })
+        })
+
+    return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+}
+
+function renderTriggerList(containerId, items) {
+    const container = document.querySelector(`#${containerId}`)
+
+    if (items.length === 0) {
+        container.innerHTML = '<p class="stats-empty">Not enough data yet.</p>'
+        return
+    }
+
+    container.innerHTML = `
+      <ul class="stats-trigger-list">
+        ${items.map(([name, count]) => `
+          <li>
+            <span>${name}</span>
+            <span class="stats-count">${count}×</span>
+          </li>
+        `).join('')}
+      </ul>
+    `
+}
+
+function renderStats() {
+    if (historyEntries.length === 0) {
+        document.querySelector('#statsOverview').innerHTML = '<p class="stats-empty">No entries yet.</p>'
+        document.querySelector('#statsFoodTriggers').innerHTML = ''
+        document.querySelector('#statsNoteTriggers').innerHTML = ''
+        document.querySelector('#statsSymptomTriggers').innerHTML = ''
+        return
+    }
+
+    const totalDays = historyEntries.length
+    const migraineDays = historyEntries.filter(e => e.headache_type === 'migraine').length
+    const headacheDays = historyEntries.filter(e => e.headache_type === 'headache').length
+    const painFreeDays = historyEntries.filter(e => e.pain_level === 0).length
+    const avgPain = average(historyEntries.map(e => e.pain_level))
+    const avgSleep = average(historyEntries.filter(e => e.sleep_hours != null).map(e => e.sleep_hours))
+    const avgWater = average(historyEntries.filter(e => e.water_liters != null).map(e => e.water_liters))
+    const periodDays = historyEntries.filter(e => e.had_period === true).length
+
+    document.querySelector('#statsOverview').innerHTML = `
+      <div class="stats-card"><strong>${totalDays}</strong><span>Total entries</span></div>
+      <div class="stats-card"><strong>${migraineDays}</strong><span>Migraine days</span></div>
+      <div class="stats-card"><strong>${headacheDays}</strong><span>Headache days</span></div>
+      <div class="stats-card"><strong>${painFreeDays}</strong><span>Pain-free days</span></div>
+      <div class="stats-card"><strong>${avgPain !== null ? avgPain.toFixed(1) : '–'}</strong><span>Avg pain level</span></div>
+      <div class="stats-card"><strong>${avgSleep !== null ? avgSleep.toFixed(1) + ' h' : '–'}</strong><span>Avg sleep</span></div>
+      <div class="stats-card"><strong>${avgWater !== null ? avgWater.toFixed(1) + ' L' : '–'}</strong><span>Avg water</span></div>
+      <div class="stats-card"><strong>${periodDays}</strong><span>Period days</span></div>
+    `
+
+    const foodBeforeTriggers = countItemsBeforeHighPainDays(historyEntries, entry =>
+        [entry.breakfast, entry.lunch, entry.other_food].filter(Boolean).flatMap(field => field.split(/[,\n]/))
+    )
+    renderTriggerList('statsFoodBeforeTriggers', foodBeforeTriggers)
+
+    const foodTriggers = countItemsOnHighPainDays(historyEntries, entry =>
+        [entry.breakfast, entry.lunch, entry.other_food].filter(Boolean).flatMap(field => field.split(/[,\n]/))
+    )
+    renderTriggerList('statsFoodTriggers', foodTriggers)
+
+    const noteTriggers = countItemsOnHighPainDays(historyEntries, entry =>
+        entry.notes ? entry.notes.split(';') : []
+    )
+    renderTriggerList('statsNoteTriggers', noteTriggers)
+
+    const symptomTriggers = countItemsOnHighPainDays(historyEntries, entry =>
+        entry.other_symptoms ? entry.other_symptoms.split(';') : []
+    )
+    renderTriggerList('statsSymptomTriggers', symptomTriggers)
+}
 
 function painToColor(pain) {
     if (pain == null) return null
