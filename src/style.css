@@ -536,6 +536,7 @@ textarea {
     gap: 12px;
     margin-bottom: 30px;
 }
+
 .stats-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -546,9 +547,11 @@ textarea {
     flex-direction: column;
     gap: 4px;
 }
+
 .stats-card strong {
     font-size: 1.6rem;
 }
+
 .stats-card span {
     font-size: 0.8rem;
     color: var(--text-muted);
@@ -559,16 +562,19 @@ textarea {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
 }
+
 .stats-trigger-column {
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 16px;
 }
+
 .stats-trigger-column h3 {
     margin-top: 0;
     font-size: 1rem;
 }
+
 .stats-trigger-list {
     list-style: none;
     margin: 0;
@@ -577,20 +583,41 @@ textarea {
     flex-direction: column;
     gap: 8px;
 }
+
 .stats-trigger-list li {
     display: flex;
     justify-content: space-between;
     padding: 6px 0;
     border-bottom: 1px solid var(--border);
 }
+
 .stats-trigger-list li:last-child {
     border-bottom: none;
 }
+
 .stats-count {
     color: var(--text-muted);
     font-weight: bold;
 }
+
 .stats-empty {
     color: var(--text-muted);
     font-style: italic;
+}
+
+.stats-weather {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 30px;
+}
+
+.stats-weather h3 {
+    margin-top: 0;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
 }

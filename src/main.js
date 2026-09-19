@@ -1,5 +1,8 @@
 ﻿import { supabase } from './supabaseClient.js'
 import './style.css'
+import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend } from 'chart.js'
+
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend)
 
 function applyDarkModePreference() {
     const saved = localStorage.getItem('darkMode')
@@ -350,6 +353,14 @@ document.querySelector('#app').innerHTML = `
         <h2>Stats</h2>
         <div id="statsOverview" class="stats-overview"></div>
 
+        <div class="stats-weather">
+          <h3>Pain level vs. barometric pressure</h3>
+          <p id="pressureCorrelation" class="stats-empty"></p>
+          <div class="chart-container">
+            <canvas id="weatherChart"></canvas>
+          </div>
+        </div>
+
         <div class="stats-triggers">
           <div class="stats-trigger-column">
             <h3>Top foods before high-pain days</h3>
@@ -497,6 +508,7 @@ async function loadHistory() {
     populateNotesFilter()
     populateSymptomFilter()
     renderFilteredHistory()
+    renderWeatherChart()
     renderStats()
 }
 
@@ -942,6 +954,116 @@ function renderTriggerList(containerId, items) {
         `).join('')}
       </ul>
     `
+}
+
+function pearsonCorrelation(xs, ys) {
+    const n = xs.length
+    if (n < 2) return null
+
+    const meanX = xs.reduce((a, b) => a + b, 0) / n
+    const meanY = ys.reduce((a, b) => a + b, 0) / n
+
+    let num = 0, denomX = 0, denomY = 0
+
+    for (let i = 0; i < n; i++) {
+        const dx = xs[i] - meanX
+        const dy = ys[i] - meanY
+        num += dx * dy
+        denomX += dx * dx
+        denomY += dy * dy
+    }
+
+    if (denomX === 0 || denomY === 0) return null
+    return num / Math.sqrt(denomX * denomY)
+}
+
+let weatherChartInstance = null
+
+function renderWeatherChart() {
+    const withPressure = historyEntries
+        .filter(entry => entry.pressure_avg != null)
+        .sort((a, b) => a.entry_date.localeCompare(b.entry_date))
+        .slice(-60)
+
+    const correlationLabel = document.querySelector('#pressureCorrelation')
+
+    if (withPressure.length < 3) {
+        correlationLabel.textContent = 'Not enough weather data yet to show a correlation.'
+        if (weatherChartInstance) {
+            weatherChartInstance.destroy()
+            weatherChartInstance = null
+        }
+        return
+    }
+
+    const r = pearsonCorrelation(
+        withPressure.map(e => e.pressure_avg),
+        withPressure.map(e => e.pain_level)
+    )
+
+    let strength = 'no clear'
+    if (r !== null) {
+        const abs = Math.abs(r)
+        if (abs >= 0.5) strength = 'a strong'
+        else if (abs >= 0.3) strength = 'a moderate'
+        else if (abs >= 0.1) strength = 'a weak'
+    }
+
+    const direction = r !== null && r < 0 ? 'lower pressure tends to come with higher pain' : 'higher pressure tends to come with higher pain'
+
+    correlationLabel.textContent = r !== null
+        ? `Correlation: ${r.toFixed(2)} — ${strength} relationship (${direction}), based on ${withPressure.length} days.`
+        : 'Could not calculate a correlation.'
+
+    const ctx = document.querySelector('#weatherChart').getContext('2d')
+
+    if (weatherChartInstance) {
+        weatherChartInstance.destroy()
+    }
+
+    weatherChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: withPressure.map(e => e.entry_date),
+            datasets: [
+                {
+                    label: 'Pain level',
+                    data: withPressure.map(e => e.pain_level),
+                    borderColor: '#e53935',
+                    backgroundColor: '#e53935',
+                    yAxisID: 'y',
+                    tension: 0.2
+                },
+                {
+                    label: 'Pressure (hPa)',
+                    data: withPressure.map(e => e.pressure_avg),
+                    borderColor: '#1976d2',
+                    backgroundColor: '#1976d2',
+                    yAxisID: 'y1',
+                    tension: 0.2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    min: 0,
+                    max: 10,
+                    title: { display: true, text: 'Pain level' }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Pressure (hPa)' }
+                }
+            }
+        }
+    })
 }
 
 function renderStats() {
