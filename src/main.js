@@ -123,7 +123,13 @@ async function translateFreeText(text, targetLang) {
         const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=de|${targetLang}`
         const response = await fetch(url)
         const data = await response.json()
-        const translated = data?.responseData?.translatedText || text
+        let translated = data?.responseData?.translatedText || text
+
+        // MyMemory returns HTTP 200 even when the quota is hit, with a warning
+        // message instead of a translation — detect that and fall back cleanly.
+        if (typeof translated === 'string' && translated.toUpperCase().includes('MYMEMORY WARNING')) {
+            translated = text
+        }
 
         freeTextTranslationCache.set(cacheKey, translated)
         return translated
