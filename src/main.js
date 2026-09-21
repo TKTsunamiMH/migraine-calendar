@@ -4,6 +4,184 @@ import { Chart, LineController, LineElement, PointElement, LinearScale, Category
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend)
 
+const translations = {
+    en: {
+        appTitle: 'Migraine Calendar',
+        appSubtitle: 'Track food, sleep, water, symptoms, medicine and weather.',
+        navToday: 'Today', navCalendar: 'Calendar', navHistory: 'History', navStats: 'Stats', navProfile: 'Profile',
+        dailyEntry: 'Daily Entry',
+        labelDate: 'Date', labelLocation: 'Location', searchLocation: 'Search location',
+        labelBreakfast: 'Breakfast', labelLunch: 'Lunch', labelOtherFood: 'Other food',
+        labelWater: 'Water (liters)', labelSleepHours: 'Hours of sleep', labelSleptThrough: 'Slept through?',
+        labelPeriod: 'Period?', labelHeadacheType: 'Headache type', labelPainLevel: 'Pain level',
+        labelOtherSymptoms: 'Other symptoms', labelMedicine: 'Medicine', labelMedicineHelped: 'Did medicine help?',
+        weatherTitle: 'Weather', weatherPlaceholder: 'Weather connection will be added next.', getWeather: 'Get weather',
+        labelNotes: 'Notes', saveEntry: 'Save Entry', cancelEdit: 'Cancel edit', edit: 'Edit',
+        historyTitle: 'History', minPainLevel: 'Min pain level', any: 'Any', showDayAfter: 'Also show the day after',
+        clearFilters: 'Clear filters', profileTitle: 'Profile', saveProfile: 'Save Profile', cancel: 'Cancel',
+        editProfile: 'Edit Profile', statsTitle: 'Stats', darkMode: '🌙 Dark mode', lightMode: '☀️ Light mode',
+        signOut: 'Sign out',
+        statsTotal: 'Total entries', statsMigraine: 'Migraine days', statsHeadache: 'Headache days',
+        statsPainFree: 'Pain-free days', statsAvgPain: 'Avg pain level', statsAvgSleep: 'Avg sleep',
+        statsAvgWater: 'Avg water', statsPeriodDays: 'Period days',
+        statsWeatherTitle: 'Pain level vs. barometric pressure', statsNoEntries: 'No entries yet.',
+        statsNotEnoughWeather: 'Not enough weather data yet to show a correlation.',
+        statsNoCorrelation: 'Could not calculate a correlation.',
+        statsFoodBeforeTitle: 'Top foods before high-pain days', statsFoodOnTitle: 'Top foods on high-pain days',
+        statsNotesTitle: 'Top notes on high-pain days', statsSymptomsTitle: 'Top symptoms on high-pain days',
+        statsNotEnoughData: 'Not enough data yet.',
+        cardBreakfast: 'Breakfast', cardLunch: 'Lunch', cardOtherFood: 'Other food', cardWater: 'Water',
+        cardSleep: 'Sleep', cardPeriod: 'Period', cardMedicine: 'Medicine', cardSymptoms: 'Other symptoms',
+        cardNotes: 'Notes', cardWeather: 'Weather',
+        valNone: 'None', valHeadache: 'headache', valMigraine: 'migraine',
+        valYes: 'Yes', valNo: 'No', valPartly: 'Partly',
+        noEntriesYet: 'No entries yet.', noEntriesMatch: 'No entries match these filters.',
+        pain: 'pain', noEntryForDay: 'No entry for this day.'
+    },
+    de: {
+        appTitle: 'Migräne-Kalender',
+        appSubtitle: 'Erfasse Essen, Schlaf, Wasser, Symptome, Medikamente und Wetter.',
+        navToday: 'Heute', navCalendar: 'Kalender', navHistory: 'Verlauf', navStats: 'Statistik', navProfile: 'Profil',
+        dailyEntry: 'Tageseintrag',
+        labelDate: 'Datum', labelLocation: 'Ort', searchLocation: 'Ort suchen',
+        labelBreakfast: 'Frühstück', labelLunch: 'Mittagessen', labelOtherFood: 'Sonstiges Essen',
+        labelWater: 'Wasser (Liter)', labelSleepHours: 'Schlafstunden', labelSleptThrough: 'Durchgeschlafen?',
+        labelPeriod: 'Periode?', labelHeadacheType: 'Kopfschmerztyp', labelPainLevel: 'Schmerzlevel',
+        labelOtherSymptoms: 'Andere Symptome', labelMedicine: 'Medikament', labelMedicineHelped: 'Hat das Medikament geholfen?',
+        weatherTitle: 'Wetter', weatherPlaceholder: 'Wetteranbindung wird als Nächstes hinzugefügt.', getWeather: 'Wetter abrufen',
+        labelNotes: 'Notizen', saveEntry: 'Eintrag speichern', cancelEdit: 'Bearbeitung abbrechen', edit: 'Bearbeiten',
+        historyTitle: 'Verlauf', minPainLevel: 'Min. Schmerzlevel', any: 'Beliebig', showDayAfter: 'Auch den Folgetag anzeigen',
+        clearFilters: 'Filter zurücksetzen', profileTitle: 'Profil', saveProfile: 'Profil speichern', cancel: 'Abbrechen',
+        editProfile: 'Profil bearbeiten', statsTitle: 'Statistik', darkMode: '🌙 Dunkelmodus', lightMode: '☀️ Hellmodus',
+        signOut: 'Abmelden',
+        statsTotal: 'Einträge gesamt', statsMigraine: 'Migränetage', statsHeadache: 'Kopfschmerztage',
+        statsPainFree: 'Schmerzfreie Tage', statsAvgPain: 'Ø Schmerzlevel', statsAvgSleep: 'Ø Schlaf',
+        statsAvgWater: 'Ø Wasser', statsPeriodDays: 'Periodentage',
+        statsWeatherTitle: 'Schmerzlevel vs. Luftdruck', statsNoEntries: 'Noch keine Einträge.',
+        statsNotEnoughWeather: 'Noch nicht genug Wetterdaten für eine Korrelation.',
+        statsNoCorrelation: 'Korrelation konnte nicht berechnet werden.',
+        statsFoodBeforeTitle: 'Top-Lebensmittel vor Tagen mit hohem Schmerzlevel', statsFoodOnTitle: 'Top-Lebensmittel an Tagen mit hohem Schmerzlevel',
+        statsNotesTitle: 'Top-Notizen an Tagen mit hohem Schmerzlevel', statsSymptomsTitle: 'Top-Symptome an Tagen mit hohem Schmerzlevel',
+        statsNotEnoughData: 'Noch nicht genug Daten.',
+        cardBreakfast: 'Frühstück', cardLunch: 'Mittagessen', cardOtherFood: 'Sonstiges Essen', cardWater: 'Wasser',
+        cardSleep: 'Schlaf', cardPeriod: 'Periode', cardMedicine: 'Medikament', cardSymptoms: 'Andere Symptome',
+        cardNotes: 'Notizen', cardWeather: 'Wetter',
+        valNone: 'Keine', valHeadache: 'Kopfschmerzen', valMigraine: 'Migräne',
+        valYes: 'Ja', valNo: 'Nein', valPartly: 'Teilweise',
+        noEntriesYet: 'Noch keine Einträge.', noEntriesMatch: 'Keine Einträge entsprechen diesen Filtern.',
+        pain: 'Schmerz', noEntryForDay: 'Kein Eintrag für diesen Tag.'
+    },
+    sv: {
+        appTitle: 'Migränkalender',
+        appSubtitle: 'Spåra mat, sömn, vatten, symtom, mediciner och väder.',
+        navToday: 'Idag', navCalendar: 'Kalender', navHistory: 'Historik', navStats: 'Statistik', navProfile: 'Profil',
+        dailyEntry: 'Dagens anteckning',
+        labelDate: 'Datum', labelLocation: 'Plats', searchLocation: 'Sök plats',
+        labelBreakfast: 'Frukost', labelLunch: 'Lunch', labelOtherFood: 'Annan mat',
+        labelWater: 'Vatten (liter)', labelSleepHours: 'Sömntimmar', labelSleptThrough: 'Sov du hela natten?',
+        labelPeriod: 'Mens?', labelHeadacheType: 'Typ av huvudvärk', labelPainLevel: 'Smärtnivå',
+        labelOtherSymptoms: 'Andra symtom', labelMedicine: 'Medicin', labelMedicineHelped: 'Hjälpte medicinen?',
+        weatherTitle: 'Väder', weatherPlaceholder: 'Väderanslutning läggs till härnäst.', getWeather: 'Hämta väder',
+        labelNotes: 'Anteckningar', saveEntry: 'Spara anteckning', cancelEdit: 'Avbryt redigering', edit: 'Redigera',
+        historyTitle: 'Historik', minPainLevel: 'Min. smärtnivå', any: 'Alla', showDayAfter: 'Visa även dagen efter',
+        clearFilters: 'Rensa filter', profileTitle: 'Profil', saveProfile: 'Spara profil', cancel: 'Avbryt',
+        editProfile: 'Redigera profil', statsTitle: 'Statistik', darkMode: '🌙 Mörkt läge', lightMode: '☀️ Ljust läge',
+        signOut: 'Logga ut',
+        statsTotal: 'Totalt antal poster', statsMigraine: 'Migrändagar', statsHeadache: 'Huvudvärksdagar',
+        statsPainFree: 'Smärtfria dagar', statsAvgPain: 'Snittsmärta', statsAvgSleep: 'Snittsömn',
+        statsAvgWater: 'Snittvatten', statsPeriodDays: 'Mensdagar',
+        statsWeatherTitle: 'Smärtnivå vs. lufttryck', statsNoEntries: 'Inga poster än.',
+        statsNotEnoughWeather: 'Inte tillräckligt med väderdata för en korrelation än.',
+        statsNoCorrelation: 'Kunde inte beräkna en korrelation.',
+        statsFoodBeforeTitle: 'Vanligaste maten dagen före hög smärta', statsFoodOnTitle: 'Vanligaste maten på dagar med hög smärta',
+        statsNotesTitle: 'Vanligaste anteckningar på dagar med hög smärta', statsSymptomsTitle: 'Vanligaste symtom på dagar med hög smärta',
+        statsNotEnoughData: 'Inte tillräckligt med data än.',
+        cardBreakfast: 'Frukost', cardLunch: 'Lunch', cardOtherFood: 'Annan mat', cardWater: 'Vatten',
+        cardSleep: 'Sömn', cardPeriod: 'Mens', cardMedicine: 'Medicin', cardSymptoms: 'Andra symtom',
+        cardNotes: 'Anteckningar', cardWeather: 'Väder',
+        valNone: 'Ingen', valHeadache: 'huvudvärk', valMigraine: 'migrän',
+        valYes: 'Ja', valNo: 'Nej', valPartly: 'Delvis',
+        noEntriesYet: 'Inga poster än.', noEntriesMatch: 'Inga poster matchar dessa filter.',
+        pain: 'smärta', noEntryForDay: 'Ingen post för denna dag.'
+    }
+}
+
+let currentLang = localStorage.getItem('appLang') || 'en'
+let historyEntries = []
+
+const freeTextTranslationCache = new Map()
+
+async function translateFreeText(text, targetLang) {
+    if (!text || targetLang === 'de') return text
+
+    const cacheKey = `${text}::${targetLang}`
+    if (freeTextTranslationCache.has(cacheKey)) {
+        return freeTextTranslationCache.get(cacheKey)
+    }
+
+    try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=de|${targetLang}`
+        const response = await fetch(url)
+        const data = await response.json()
+        const translated = data?.responseData?.translatedText || text
+
+        freeTextTranslationCache.set(cacheKey, translated)
+        return translated
+    } catch (error) {
+        console.error('Translation failed:', error)
+        return text
+    }
+}
+
+async function translateVisibleFreeText(container) {
+    if (currentLang === 'de') return
+
+    const elements = container.querySelectorAll('[data-translatable]')
+
+    await Promise.all(Array.from(elements).map(async el => {
+        const original = el.dataset.original
+        const translated = await translateFreeText(original, currentLang)
+        el.textContent = translated
+    }))
+}
+
+function t(key) {
+    return translations[currentLang]?.[key] ?? translations.en[key] ?? key
+}
+
+function translateHeadacheType(value) {
+    if (value === 'migraine') return t('valMigraine')
+    if (value === 'headache') return t('valHeadache')
+    return t('valNone')
+}
+
+function translateYesNo(value) {
+    if (value === true || value === 'yes') return t('valYes')
+    if (value === false || value === 'no') return t('valNo')
+    if (value === 'partly') return t('valPartly')
+    return ''
+}
+
+function applyTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n)
+    })
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.dataset.i18nPlaceholder)
+    })
+    document.querySelectorAll('.lang-button').forEach(btn => {
+        btn.classList.toggle('active-view', btn.dataset.lang === currentLang)
+    })
+    renderFilteredHistory()
+    renderStats()
+}
+
+function setLang(lang) {
+    currentLang = lang
+    localStorage.setItem('appLang', currentLang)
+    applyTranslations()
+}
+
 function applyDarkModePreference() {
     const saved = localStorage.getItem('darkMode')
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -63,35 +241,38 @@ if (!session) {
 document.querySelector('#app').innerHTML = `
     <div id="appScreen" class="app-container">
    <header class="header">
-      <h1>Migraine Calendar</h1>
-      <p>Track food, sleep, water, symptoms, medicine and weather.</p>
+      <h1 data-i18n="appTitle">Migraine Calendar</h1>
+      <p data-i18n="appSubtitle">Track food, sleep, water, symptoms, medicine and weather.</p>
       <button type="button" id="darkModeButton" class="secondary-button">🌙 Dark mode</button>
+      <button type="button" class="secondary-button lang-button" data-lang="en">EN</button>
+      <button type="button" class="secondary-button lang-button" data-lang="de">DE</button>
+      <button type="button" class="secondary-button lang-button" data-lang="sv">SV</button>
       <button type="button" id="logoutButton" class="secondary-button">Sign out</button>
     </header>
 
     <nav class="nav">
-      <button class="nav-button active" data-page="entry">Today</button>
-      <button class="nav-button" data-page="calendar">Calendar</button>
-      <button class="nav-button" data-page="history">History</button>
-      <button class="nav-button" data-page="stats">Stats</button>
-      <button class="nav-button" data-page="profile">Profile</button>
+      <button class="nav-button active" data-page="entry" data-i18n="navToday">Today</button>
+      <button class="nav-button" data-page="calendar" data-i18n="navCalendar">Calendar</button>
+      <button class="nav-button" data-page="history" data-i18n="navHistory">History</button>
+      <button class="nav-button" data-page="stats" data-i18n="navStats">Stats</button>
+      <button class="nav-button" data-page="profile" data-i18n="navProfile">Profile</button>
     </nav>
 
     <main>
       <section id="entry-page" class="page active">
-        <h2>Daily Entry</h2>
+        <h2 data-i18n="dailyEntry">Daily Entry</h2>
 
         <form id="migraine-form">
           <div class="form-grid">
 
             <label>
-              Date
+              <span data-i18n="date">Date</span>
               <input type="date" id="date" required>
             </label>
 
             <div class="location-section">
   <label>
-    Location
+    <span data-i18n="location">Location</span>
     <input
       type="text"
       id="location"
@@ -118,60 +299,60 @@ document.querySelector('#app').innerHTML = `
 
             <div class="wide food-row">
               <label>
-                Breakfast
+                <span data-i18n="breakfast">Breakfast</span>
                 <textarea id="breakfast" placeholder="What did you eat?"></textarea>
               </label>
 
               <label>
-                Lunch
+                <span data-i18n="lunch">Lunch</span>
                 <textarea id="lunch" placeholder="What did you eat?"></textarea>
               </label>
 
               <label>
-                Other food
+                <span data-i18n="otherFood">Other food</span>
                 <textarea id="otherFood" placeholder="Dinner, snacks, drinks..."></textarea>
               </label>
             </div>
 
             <label>
-              Water (liters)
+              <span data-i18n="waterLiters">Water (liters)</span>
               <input type="number" id="water" min="0" step="0.1" placeholder="2.0">
             </label>
 
             <label>
-              Hours of sleep
+              <span data-i18n="hoursOfSleep">Hours of sleep</span>
               <input type="number" id="sleepHours" min="0" max="24" step="0.25" placeholder="7.5">
             </label>
 
             <label>
-              Slept through?
+              <span data-i18n="sleptThrough">Slept through?</span>
               <select id="sleptThrough">
-                <option value="">Choose</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
+                <option value="" data-i18n="choose">Choose</option>
+                <option value="yes" data-i18n="yes">Yes</option>
+                <option value="no" data-i18n="no">No</option>
               </select>
             </label>
 
             <label>
-              Period?
+              <span data-i18n="period">Period?</span>
               <select id="hadPeriod">
-                <option value="">Not tracked</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
+                <option value="" data-i18n="notTracked">Not tracked</option>
+                <option value="yes" data-i18n="yes">Yes</option>
+                <option value="no" data-i18n="no">No</option>
               </select>
             </label>
 
             <label>
-              Headache type
+              <span data-i18n="headacheType">Headache type</span>
               <select id="headacheType">
-                <option value="none">None</option>
-                <option value="headache">Headache</option>
-                <option value="migraine">Migraine</option>
+                <option value="none" data-i18n="none">None</option>
+                <option value="headache" data-i18n="headache">Headache</option>
+                <option value="migraine" data-i18n="migraine">Migraine</option>
               </select>
             </label>
 
             <label>
-              Pain level
+              <span data-i18n="painLevel">Pain level</span>
               <div class="pain-row">
                 <input type="range" id="painLevel" min="0" max="10" value="0">
                 <strong id="painValue">0</strong>
@@ -179,22 +360,22 @@ document.querySelector('#app').innerHTML = `
             </label>
 
             <label>
-              Andere Symptome
+              <span data-i18n="otherSymptoms">Other symptoms</span>
               <textarea id="otherSymptoms" placeholder="List symptoms separated by commas (e.g., Nausea, Sensitivity to light, Fatigue)"></textarea>
             </label>
 
             <label>
-              Medicine
+              <span data-i18n="medicine">Medicine</span>
               <input type="text" id="medicine" placeholder="Example: Sumatriptan">
             </label>
 
             <label>
-              Did medicine help?
+              <span data-i18n="medicineHelped">Did medicine help?</span>
               <select id="medicineHelped">
-                <option value="">Not applicable</option>
-                <option value="yes">Yes</option>
-                <option value="partly">Partly</option>
-                <option value="no">No</option>
+                <option value="" data-i18n="notApplicable">Not applicable</option>
+                <option value="yes" data-i18n="yes">Yes</option>
+                <option value="partly" data-i18n="partly">Partly</option>
+                <option value="no" data-i18n="no">No</option>
               </select>
             </label>
 
@@ -207,7 +388,7 @@ document.querySelector('#app').innerHTML = `
             </div>
 
             <label>
-              Notes
+              <span data-i18n="notes">Notes</span>
               <textarea id="notes" placeholder="Stress, exercise, symptoms, anything unusual..."></textarea>
             </label>
 
@@ -267,55 +448,55 @@ document.querySelector('#app').innerHTML = `
             </select>
           </label>
           <label>
-            Andere Symptome
+            <span data-i18n="otherSymptoms">Other symptoms</span>
             <select id="filterSymptoms">
               <option value="">Any</option>
             </select>
           </label>
           <label class="filter-checkbox">
             <input type="checkbox" id="filterNextDay">
-            Also show the day after
+            <span data-i18n="alsoShowTheDayAfter">Also show the day after</span>
           </label>
-          <button type="button" id="clearFiltersButton" class="secondary-button">Clear filters</button>
+          <button type="button" id="clearFiltersButton" class="secondary-button" data-i18n="clearFilters">Clear filters</button>
         </div>
         <div id="historyResults"></div>
       </section>
             <section id="profile-page" class="page">
-        <h2>Profile</h2>
+        <h2 data-i18n="profile">Profile</h2>
 
         <div id="profileViewMode">
           <div class="profile-display">
-            <p><strong>Age:</strong> <span id="displayAge">Not specified</span></p>
-            <p><strong>Height:</strong> <span id="displayHeight">Not specified</span></p>
-            <p><strong>Weight:</strong> <span id="displayWeight">Not specified</span></p>
-            <p><strong>Does sport?:</strong> <span id="displayDoesSport">Not specified</span></p>
-            <p><strong>Sport frequency / type:</strong> <span id="displaySportFrequency">Not specified</span></p>
-            <p><strong>Migraine in family?:</strong> <span id="displayMigraineFamily">Not specified</span></p>
-            <p><strong>Family notes:</strong> <span id="displayFamilyNotes">Not specified</span></p>
+            <p><strong data-i18n="age">Age:</strong> <span id="displayAge">Not specified</span></p>
+            <p><strong data-i18n="height">Height:</strong> <span id="displayHeight">Not specified</span></p>
+            <p><strong data-i18n="weight">Weight:</strong> <span id="displayWeight">Not specified</span></p>
+            <p><strong data-i18n="doesSport">Does sport?:</strong> <span id="displayDoesSport">Not specified</span></p>
+            <p><strong data-i18n="sportFrequencyType">Sport frequency / type:</strong> <span id="displaySportFrequency">Not specified</span></p>
+            <p><strong data-i18n="migraineInFamily">Migraine in family?:</strong> <span id="displayMigraineFamily">Not specified</span></p>
+            <p><strong data-i18n="familyNotes">Family notes:</strong> <span id="displayFamilyNotes">Not specified</span></p>
           </div>
-          <button type="button" id="profileEditButton" class="save-button">Edit Profile</button>
+          <button type="button" id="profileEditButton" class="save-button" data-i18n="editProfile">Edit Profile</button>
         </div>
 
         <form id="profile-form" style="display:none">
           <div class="form-grid">
 
             <label>
-              Age
+              <span data-i18n="age">Age</span>
               <input type="number" id="profileAge" min="0" max="120">
             </label>
 
             <label>
-              Height (cm)
+              <span data-i18n="height">Height (cm)</span>
               <input type="number" id="profileHeight" min="0" step="0.1">
             </label>
 
             <label>
-              Weight (kg)
+              <span data-i18n="weight">Weight (kg)</span>
               <input type="number" id="profileWeight" min="0" step="0.1">
             </label>
 
             <label>
-              Does sport?
+              <span data-i18n="doesSport">Does sport?</span>
               <select id="profileDoesSport">
                 <option value="">Not specified</option>
                 <option value="yes">Yes</option>
@@ -324,12 +505,12 @@ document.querySelector('#app').innerHTML = `
             </label>
 
             <label class="wide">
-              Sport frequency / type
+              <span data-i18n="sportFrequencyType">Sport frequency / type</span>
               <input type="text" id="profileSportFrequency" placeholder="e.g. Running 2x/week">
             </label>
 
             <label>
-              Migraine in family?
+              <span data-i18n="migraineInFamily">Migraine in family?</span>
               <select id="profileMigraineFamily">
                 <option value="">Not specified</option>
                 <option value="yes">Yes</option>
@@ -338,7 +519,7 @@ document.querySelector('#app').innerHTML = `
             </label>
 
             <label class="wide">
-              Family notes
+              <span data-i18n="familyNotes">Family notes</span>
               <textarea id="profileFamilyNotes" placeholder="Who, any details..."></textarea>
             </label>
 
@@ -354,7 +535,7 @@ document.querySelector('#app').innerHTML = `
         <div id="statsOverview" class="stats-overview"></div>
 
         <div class="stats-weather">
-          <h3>Pain level vs. barometric pressure</h3>
+          <h3 data-i18n="statsWeatherTitle">Pain level vs. barometric pressure</h3>
           <p id="pressureCorrelation" class="stats-empty"></p>
           <div class="chart-container">
             <canvas id="weatherChart"></canvas>
@@ -363,19 +544,19 @@ document.querySelector('#app').innerHTML = `
 
         <div class="stats-triggers">
           <div class="stats-trigger-column">
-            <h3>Top foods before high-pain days</h3>
+            <h3 data-i18n="statsFoodBeforeTitle">Top foods before high-pain days</h3>
             <div id="statsFoodBeforeTriggers"></div>
           </div>
           <div class="stats-trigger-column">
-            <h3>Top foods on high-pain days</h3>
+            <h3 data-i18n="statsFoodOnTitle">Top foods on high-pain days</h3>
             <div id="statsFoodTriggers"></div>
           </div>
           <div class="stats-trigger-column">
-            <h3>Top notes on high-pain days</h3>
+            <h3 data-i18n="statsNotesTitle">Top notes on high-pain days</h3>
             <div id="statsNoteTriggers"></div>
           </div>
           <div class="stats-trigger-column">
-            <h3>Top symptoms on high-pain days</h3>
+            <h3 data-i18n="statsSymptomsTitle">Top symptoms on high-pain days</h3>
             <div id="statsSymptomTriggers"></div>
           </div>
         </div>
@@ -476,7 +657,7 @@ document.querySelector('#logoutButton').addEventListener('click', async () => {
 function updateDarkModeButtonLabel() {
     const button = document.querySelector('#darkModeButton')
     if (!button) return
-    button.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light mode' : '🌙 Dark mode'
+    button.textContent = document.body.classList.contains('dark-mode') ? t('lightMode') : t('darkMode')
 }
 
 document.querySelector('#darkModeButton').addEventListener('click', () => {
@@ -487,7 +668,10 @@ document.querySelector('#darkModeButton').addEventListener('click', () => {
 
 updateDarkModeButtonLabel()
 
-let historyEntries = []
+document.querySelectorAll('.lang-button').forEach(btn => {
+    btn.addEventListener('click', () => setLang(btn.dataset.lang))
+})
+applyTranslations()
 
 async function loadHistory() {
     const resultsBox = document.querySelector('#historyResults')
@@ -516,7 +700,7 @@ function renderFilteredHistory() {
     const resultsBox = document.querySelector('#historyResults')
 
     if (historyEntries.length === 0) {
-        resultsBox.innerHTML = '<p>No entries yet.</p>'
+        resultsBox.innerHTML = `<p>${t('noEntriesYet')}</p>`
         return
     }
 
@@ -532,6 +716,8 @@ function renderFilteredHistory() {
             if (entry) loadEntryIntoForm(entry)
         })
     })
+
+    translateVisibleFreeText(resultsBox)
 }
 
 function extractFoodItems(entries) {
@@ -675,7 +861,7 @@ function applyFilters() {
     const resultsBox = document.querySelector('#historyResults')
 
     if (filtered.length === 0) {
-        resultsBox.innerHTML = '<p>No entries match these filters.</p>'
+        resultsBox.innerHTML = `<p>${t('noEntriesMatch')}</p>`
         return
     }
 
@@ -715,11 +901,11 @@ function renderFoodPairGroup(index) {
         <div class="food-pair-columns">
           <div class="food-pair-item">
             <span class="food-pair-label">${anchorDate}</span>
-            ${leftEntry ? entryToHistoryCard(leftEntry) : '<p class="food-pair-empty">No entry for this day.</p>'}
+            ${leftEntry ? entryToHistoryCard(leftEntry) : `<p class="food-pair-empty">${t('noEntryForDay')}</p>`}
           </div>
           <div class="food-pair-item">
             <span class="food-pair-label">${nextDate}</span>
-            ${rightEntry ? entryToHistoryCard(rightEntry) : '<p class="food-pair-empty">No entry for this day.</p>'}
+            ${rightEntry ? entryToHistoryCard(rightEntry) : `<p class="food-pair-empty">${t('noEntryForDay')}</p>`}
           </div>
         </div>
         <button type="button" class="secondary-button food-pair-arrow" data-index="${index}" data-direction="1">→</button>
@@ -764,7 +950,7 @@ function renderTermPairs(term, matchFn) {
     const resultsBox = document.querySelector('#historyResults')
 
     if (matchingDates.length === 0) {
-        resultsBox.innerHTML = '<p>No entries match these filters.</p>'
+        resultsBox.innerHTML = `<p>${t('noEntriesMatch')}</p>`
         return
     }
 
@@ -773,6 +959,7 @@ function renderTermPairs(term, matchFn) {
     resultsBox.innerHTML = `<div class="food-pair-list">${groupsHtml}</div>`
 
     attachFoodPairListeners(resultsBox)
+    translateVisibleFreeText(resultsBox)
 }
 
 document.querySelector('#filterPain').addEventListener('change', applyFilters)
@@ -791,29 +978,31 @@ document.querySelector('#clearFiltersButton').addEventListener('click', () => {
 })
 
 function entryToHistoryCard(entry) {
+    const translatable = (text) => `<span data-translatable data-original="${text.replace(/"/g, '&quot;')}">${text}</span>`
+
     const rows = [
-        entry.breakfast && `<p><strong>Breakfast:</strong> ${entry.breakfast}</p>`,
-        entry.lunch && `<p><strong>Lunch:</strong> ${entry.lunch}</p>`,
-        entry.other_food && `<p><strong>Other food:</strong> ${entry.other_food}</p>`,
-        (entry.water_liters != null) && `<p><strong>Water:</strong> ${entry.water_liters} L</p>`,
-        (entry.sleep_hours != null) && `<p><strong>Sleep:</strong> ${entry.sleep_hours} h</p>`,
-        (entry.had_period != null) && `<p><strong>Period:</strong> ${entry.had_period ? 'Yes' : 'No'}</p>`,
-        entry.medicine && `<p><strong>Medicine:</strong> ${entry.medicine} ${entry.medicine_helped ? '(' + entry.medicine_helped + ')' : ''}</p>`,
-        entry.other_symptoms && `<p><strong>Andere Symptome:</strong> ${entry.other_symptoms}</p>`,
-        entry.notes && `<p><strong>Notes:</strong> ${entry.notes}</p>`,
-        entry.weather_description && `<p><strong>Weather:</strong> ${entry.weather_description}${(entry.temp_min != null && entry.temp_max != null) ? `, ${entry.temp_min.toFixed(1)}–${entry.temp_max.toFixed(1)}°C` : ''}${entry.precipitation != null ? `, ${entry.precipitation.toFixed(1)}mm rain` : ''}${entry.humidity_avg != null ? `, ${entry.humidity_avg.toFixed(0)}% humidity` : ''}${entry.pressure_avg != null ? `, ${entry.pressure_avg.toFixed(0)}hPa` : ''}</p>`
+        entry.breakfast && `<p><strong>${t('cardBreakfast')}:</strong> ${translatable(entry.breakfast)}</p>`,
+        entry.lunch && `<p><strong>${t('cardLunch')}:</strong> ${translatable(entry.lunch)}</p>`,
+        entry.other_food && `<p><strong>${t('cardOtherFood')}:</strong> ${translatable(entry.other_food)}</p>`,
+        (entry.water_liters != null) && `<p><strong>${t('cardWater')}:</strong> ${entry.water_liters} L</p>`,
+        (entry.sleep_hours != null) && `<p><strong>${t('cardSleep')}:</strong> ${entry.sleep_hours} h</p>`,
+        (entry.had_period != null) && `<p><strong>${t('cardPeriod')}:</strong> ${translateYesNo(entry.had_period)}</p>`,
+        entry.medicine && `<p><strong>${t('cardMedicine')}:</strong> ${translatable(entry.medicine)} ${entry.medicine_helped ? '(' + translateYesNo(entry.medicine_helped) + ')' : ''}</p>`,
+        entry.other_symptoms && `<p><strong>${t('cardSymptoms')}:</strong> ${translatable(entry.other_symptoms)}</p>`,
+        entry.notes && `<p><strong>${t('cardNotes')}:</strong> ${translatable(entry.notes)}</p>`,
+        entry.weather_description && `<p><strong>${t('cardWeather')}:</strong> ${entry.weather_description}${(entry.temp_min != null && entry.temp_max != null) ? `, ${entry.temp_min.toFixed(1)}–${entry.temp_max.toFixed(1)}°C` : ''}${entry.precipitation != null ? `, ${entry.precipitation.toFixed(1)}mm` : ''}${entry.humidity_avg != null ? `, ${entry.humidity_avg.toFixed(0)}%` : ''}${entry.pressure_avg != null ? `, ${entry.pressure_avg.toFixed(0)}hPa` : ''}</p>`
     ].filter(Boolean).join('')
 
-        return `
+    return `
       <div class="history-card">
         <div class="history-card-header">
           <strong>${entry.entry_date}${entry.had_period ? ' 🩸' : ''}${entry.headache_type === 'migraine' ? ' ⚡' : ''}</strong>
-          <span class="pain-badge">${entry.headache_type} · pain ${entry.pain_level}</span>
+          <span class="pain-badge">${translateHeadacheType(entry.headache_type)} · ${t('pain')} ${entry.pain_level}</span>
         </div>
         <p class="history-location">${entry.location_name ?? ''}</p>
         ${rows}
         <div class="history-card-footer">
-          <button type="button" class="secondary-button edit-entry-button" data-id="${entry.id}">Edit</button>
+          <button type="button" class="secondary-button edit-entry-button" data-id="${entry.id}">${t('edit')}</button>
         </div>
       </div>
     `
@@ -940,7 +1129,7 @@ function renderTriggerList(containerId, items) {
     const container = document.querySelector(`#${containerId}`)
 
     if (items.length === 0) {
-        container.innerHTML = '<p class="stats-empty">Not enough data yet.</p>'
+        container.innerHTML = `<p class="stats-empty">${t('statsNotEnoughData')}</p>`
         return
     }
 
@@ -948,12 +1137,14 @@ function renderTriggerList(containerId, items) {
       <ul class="stats-trigger-list">
         ${items.map(([name, count]) => `
           <li>
-            <span>${name}</span>
+            <span data-translatable data-original="${name.replace(/"/g, '&quot;')}">${name}</span>
             <span class="stats-count">${count}×</span>
           </li>
         `).join('')}
       </ul>
     `
+
+    translateVisibleFreeText(container)
 }
 
 function pearsonCorrelation(xs, ys) {
@@ -988,7 +1179,7 @@ function renderWeatherChart() {
     const correlationLabel = document.querySelector('#pressureCorrelation')
 
     if (withPressure.length < 3) {
-        correlationLabel.textContent = 'Not enough weather data yet to show a correlation.'
+        correlationLabel.textContent = t('statsNotEnoughWeather')
         if (weatherChartInstance) {
             weatherChartInstance.destroy()
             weatherChartInstance = null
@@ -1013,7 +1204,7 @@ function renderWeatherChart() {
 
     correlationLabel.textContent = r !== null
         ? `Correlation: ${r.toFixed(2)} — ${strength} relationship (${direction}), based on ${withPressure.length} days.`
-        : 'Could not calculate a correlation.'
+        : t('statsNoCorrelation')
 
     const ctx = document.querySelector('#weatherChart').getContext('2d')
 
@@ -1068,7 +1259,7 @@ function renderWeatherChart() {
 
 function renderStats() {
     if (historyEntries.length === 0) {
-        document.querySelector('#statsOverview').innerHTML = '<p class="stats-empty">No entries yet.</p>'
+        document.querySelector('#statsOverview').innerHTML = `<p class="stats-empty">${t('statsNoEntries')}</p>`
         document.querySelector('#statsFoodTriggers').innerHTML = ''
         document.querySelector('#statsNoteTriggers').innerHTML = ''
         document.querySelector('#statsSymptomTriggers').innerHTML = ''
@@ -1085,14 +1276,14 @@ function renderStats() {
     const periodDays = historyEntries.filter(e => e.had_period === true).length
 
     document.querySelector('#statsOverview').innerHTML = `
-      <div class="stats-card"><strong>${totalDays}</strong><span>Total entries</span></div>
-      <div class="stats-card"><strong>${migraineDays}</strong><span>Migraine days</span></div>
-      <div class="stats-card"><strong>${headacheDays}</strong><span>Headache days</span></div>
-      <div class="stats-card"><strong>${painFreeDays}</strong><span>Pain-free days</span></div>
-      <div class="stats-card"><strong>${avgPain !== null ? avgPain.toFixed(1) : '–'}</strong><span>Avg pain level</span></div>
-      <div class="stats-card"><strong>${avgSleep !== null ? avgSleep.toFixed(1) + ' h' : '–'}</strong><span>Avg sleep</span></div>
-      <div class="stats-card"><strong>${avgWater !== null ? avgWater.toFixed(1) + ' L' : '–'}</strong><span>Avg water</span></div>
-      <div class="stats-card"><strong>${periodDays}</strong><span>Period days</span></div>
+      <div class="stats-card"><strong>${totalDays}</strong><span>${t('statsTotal')}</span></div>
+      <div class="stats-card"><strong>${migraineDays}</strong><span>${t('statsMigraine')}</span></div>
+      <div class="stats-card"><strong>${headacheDays}</strong><span>${t('statsHeadache')}</span></div>
+      <div class="stats-card"><strong>${painFreeDays}</strong><span>${t('statsPainFree')}</span></div>
+      <div class="stats-card"><strong>${avgPain !== null ? avgPain.toFixed(1) : '–'}</strong><span>${t('statsAvgPain')}</span></div>
+      <div class="stats-card"><strong>${avgSleep !== null ? avgSleep.toFixed(1) + ' h' : '–'}</strong><span>${t('statsAvgSleep')}</span></div>
+      <div class="stats-card"><strong>${avgWater !== null ? avgWater.toFixed(1) + ' L' : '–'}</strong><span>${t('statsAvgWater')}</span></div>
+      <div class="stats-card"><strong>${periodDays}</strong><span>${t('statsPeriodDays')}</span></div>
     `
 
     const foodBeforeTriggers = countItemsBeforeHighPainDays(historyEntries, entry =>
@@ -1190,12 +1381,14 @@ async function renderCalendar() {
             const detail = document.querySelector('#calendarDetail')
             detail.innerHTML = entry
                 ? entryToHistoryCard(entry)
-                : `<p>No entry for ${cell.dataset.date}.</p>`
+                : `<p>${t('noEntryForDay')}</p>`
 
             const editButton = detail.querySelector('.edit-entry-button')
             if (editButton) {
                 editButton.addEventListener('click', () => loadEntryIntoForm(entry))
             }
+
+            translateVisibleFreeText(detail)
         })
     })
 }
