@@ -36,7 +36,18 @@ const translations = {
         valNone: 'None', valHeadache: 'headache', valMigraine: 'migraine',
         valYes: 'Yes', valNo: 'No', valPartly: 'Partly',
         noEntriesYet: 'No entries yet.', noEntriesMatch: 'No entries match these filters.',
-        pain: 'pain', noEntryForDay: 'No entry for this day.'
+        pain: 'pain', noEntryForDay: 'No entry for this day.',
+        wentForWalk: 'Went for a walk?', cardWalk: 'Walk',
+        statsMedicineTitle: 'Medicine usage', statsThisMonth: 'This month', statsLastMonth: 'Last month',
+        date: 'Date', location: 'Location', breakfast: 'Breakfast', lunch: 'Lunch', otherFood: 'Other food',
+        waterLiters: 'Water (liters)', hoursOfSleep: 'Hours of sleep', choose: 'Choose',
+        period: 'Period?', notTracked: 'Not tracked', headacheType: 'Headache type',
+        none: 'None', headache: 'Headache', migraine: 'Migraine', painLevel: 'Pain level',
+        otherSymptoms: 'Other symptoms', medicine: 'Medicine', notApplicable: 'Not applicable',
+        partly: 'Partly', medicineHelped: 'Did medicine help?', notes: 'Notes',
+        alsoShowTheDayAfter: 'Also show the day after', profile: 'Profile',
+        age: 'Age', height: 'Height (cm)', weight: 'Weight (kg)', doesSport: 'Does sport?',
+        sportFrequencyType: 'Sport frequency / type', migraineInFamily: 'Migraine in family?', familyNotes: 'Family notes'
     },
     de: {
         appTitle: 'Migräne-Kalender',
@@ -69,7 +80,18 @@ const translations = {
         valNone: 'Keine', valHeadache: 'Kopfschmerzen', valMigraine: 'Migräne',
         valYes: 'Ja', valNo: 'Nein', valPartly: 'Teilweise',
         noEntriesYet: 'Noch keine Einträge.', noEntriesMatch: 'Keine Einträge entsprechen diesen Filtern.',
-        pain: 'Schmerz', noEntryForDay: 'Kein Eintrag für diesen Tag.'
+        pain: 'Schmerz', noEntryForDay: 'Kein Eintrag für diesen Tag.',
+        wentForWalk: 'Spaziergang gemacht?', cardWalk: 'Spaziergang',
+        statsMedicineTitle: 'Medikamenteneinnahme', statsThisMonth: 'Diesen Monat', statsLastMonth: 'Letzten Monat',
+        date: 'Datum', location: 'Ort', breakfast: 'Frühstück', lunch: 'Mittagessen', otherFood: 'Sonstiges Essen',
+        waterLiters: 'Wasser (Liter)', hoursOfSleep: 'Schlafstunden', choose: 'Auswählen',
+        period: 'Periode?', notTracked: 'Nicht erfasst', headacheType: 'Kopfschmerztyp',
+        none: 'Keine', headache: 'Kopfschmerzen', migraine: 'Migräne', painLevel: 'Schmerzlevel',
+        otherSymptoms: 'Andere Symptome', medicine: 'Medikament', notApplicable: 'Nicht zutreffend',
+        partly: 'Teilweise', medicineHelped: 'Hat das Medikament geholfen?', notes: 'Notizen',
+        alsoShowTheDayAfter: 'Auch den Folgetag anzeigen', profile: 'Profil',
+        age: 'Alter', height: 'Größe (cm)', weight: 'Gewicht (kg)', doesSport: 'Treibt Sport?',
+        sportFrequencyType: 'Sportart / Häufigkeit', migraineInFamily: 'Migräne in der Familie?', familyNotes: 'Notizen zur Familie'
     },
     sv: {
         appTitle: 'Migränkalender',
@@ -102,7 +124,18 @@ const translations = {
         valNone: 'Ingen', valHeadache: 'huvudvärk', valMigraine: 'migrän',
         valYes: 'Ja', valNo: 'Nej', valPartly: 'Delvis',
         noEntriesYet: 'Inga poster än.', noEntriesMatch: 'Inga poster matchar dessa filter.',
-        pain: 'smärta', noEntryForDay: 'Ingen post för denna dag.'
+        pain: 'smärta', noEntryForDay: 'Ingen post för denna dag.',
+        wentForWalk: 'Var du ute och gick?', cardWalk: 'Promenad',
+        statsMedicineTitle: 'Medicinanvändning', statsThisMonth: 'Denna månad', statsLastMonth: 'Förra månaden',
+        date: 'Datum', location: 'Plats', breakfast: 'Frukost', lunch: 'Lunch', otherFood: 'Annan mat',
+        waterLiters: 'Vatten (liter)', hoursOfSleep: 'Sömntimmar', choose: 'Välj',
+        period: 'Mens?', notTracked: 'Ej spårat', headacheType: 'Typ av huvudvärk',
+        none: 'Ingen', headache: 'Huvudvärk', migraine: 'Migrän', painLevel: 'Smärtnivå',
+        otherSymptoms: 'Andra symtom', medicine: 'Medicin', notApplicable: 'Ej tillämpligt',
+        partly: 'Delvis', medicineHelped: 'Hjälpte medicinen?', notes: 'Anteckningar',
+        alsoShowTheDayAfter: 'Visa även dagen efter', profile: 'Profil',
+        age: 'Ålder', height: 'Längd (cm)', weight: 'Vikt (kg)', doesSport: 'Tränar du?',
+        sportFrequencyType: 'Typ av träning / frekvens', migraineInFamily: 'Migrän i familjen?', familyNotes: 'Anteckningar om familjen'
     }
 }
 
@@ -338,6 +371,14 @@ document.querySelector('#app').innerHTML = `
                 <option value="no" data-i18n="no">No</option>
               </select>
             </label>
+            <label>
+              <span data-i18n="wentForWalk">Went for a walk?</span>
+              <select id="wentForWalk">
+                <option value="" data-i18n="notTracked">Not tracked</option>
+                <option value="yes" data-i18n="yes">Yes</option>
+                <option value="no" data-i18n="no">No</option>
+              </select>
+            </label>
 
             <label>
               <span data-i18n="period">Period?</span>
@@ -372,7 +413,7 @@ document.querySelector('#app').innerHTML = `
 
             <label>
               <span data-i18n="medicine">Medicine</span>
-              <input type="text" id="medicine" placeholder="Example: Sumatriptan">
+              <input type="text" id="medicine" placeholder="Ibuprofen 2x; Sumatriptan 1x">
             </label>
 
             <label>
@@ -457,6 +498,21 @@ document.querySelector('#app').innerHTML = `
             <span data-i18n="otherSymptoms">Other symptoms</span>
             <select id="filterSymptoms">
               <option value="">Any</option>
+            </select>
+          </label>
+          <label>
+            <span data-i18n="medicine">Medicine</span>
+            <select id="filterMedicine">
+              <option value="">Any</option>
+            </select>
+          </label>
+          <label>
+            <span data-i18n="medicineHelped">Did medicine help?</span>
+            <select id="filterMedicineHelped">
+              <option value="">Any</option>
+              <option value="yes" data-i18n="yes">Yes</option>
+              <option value="partly" data-i18n="partly">Partly</option>
+              <option value="no" data-i18n="no">No</option>
             </select>
           </label>
           <label class="filter-checkbox">
@@ -548,6 +604,20 @@ document.querySelector('#app').innerHTML = `
           </div>
         </div>
 
+        <div class="stats-medicine">
+          <h3 data-i18n="statsMedicineTitle">Medicine usage</h3>
+          <div class="stats-medicine-columns">
+            <div>
+              <h4 data-i18n="statsThisMonth">This month</h4>
+              <div id="statsMedicineThisMonth"></div>
+            </div>
+            <div>
+              <h4 data-i18n="statsLastMonth">Last month</h4>
+              <div id="statsMedicineLastMonth"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="stats-triggers">
           <div class="stats-trigger-column">
             <h3 data-i18n="statsFoodBeforeTitle">Top foods before high-pain days</h3>
@@ -616,6 +686,7 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
         water_liters: parseFloat(document.querySelector('#water').value) || null,
         sleep_hours: parseFloat(document.querySelector('#sleepHours').value) || null,
         slept_through: document.querySelector('#sleptThrough').value || null,
+        went_for_walk: document.querySelector('#wentForWalk').value === '' ? null : document.querySelector('#wentForWalk').value === 'yes',
         had_period: document.querySelector('#hadPeriod').value === '' ? null : document.querySelector('#hadPeriod').value === 'yes',
         headache_type: document.querySelector('#headacheType').value,
         pain_level: parseInt(document.querySelector('#painLevel').value, 10),
@@ -697,6 +768,7 @@ async function loadHistory() {
     populateFoodFilter()
     populateNotesFilter()
     populateSymptomFilter()
+    populateMedicineFilter()
     renderFilteredHistory()
     renderWeatherChart()
     renderStats()
@@ -802,10 +874,46 @@ function extractSymptomItems(entries) {
     return Array.from(items).sort((a, b) => a.localeCompare(b))
 }
 
+function parseMedicineEntries(medicineText) {
+    if (!medicineText) return []
+
+    return medicineText.split(';').map(part => {
+        const trimmed = part.trim()
+        const match = trimmed.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*x$/i)
+        if (match) {
+            return { name: match[1].trim(), count: parseFloat(match[2]) }
+        }
+        return trimmed ? { name: trimmed, count: 1 } : null
+    }).filter(Boolean)
+}
+
+function extractMedicineNames(entries) {
+    const items = new Set()
+    entries.forEach(entry => {
+        parseMedicineEntries(entry.medicine).forEach(({ name }) => items.add(name))
+    })
+    return Array.from(items).sort((a, b) => a.localeCompare(b))
+}
+
+function entryHasMedicine(entry, medicineName) {
+    return parseMedicineEntries(entry.medicine).some(({ name }) => name.toLowerCase() === medicineName.toLowerCase())
+}
+
 function populateSymptomFilter() {
     const select = document.querySelector('#filterSymptoms')
     const currentValue = select.value
     const items = extractSymptomItems(historyEntries)
+
+    select.innerHTML = '<option value="">Any</option>' +
+        items.map(item => `<option value="${item}">${item}</option>`).join('')
+
+    select.value = currentValue
+}
+
+function populateMedicineFilter() {
+    const select = document.querySelector('#filterMedicine')
+    const currentValue = select.value
+    const items = extractMedicineNames(historyEntries)
 
     select.innerHTML = '<option value="">Any</option>' +
         items.map(item => `<option value="${item}">${item}</option>`).join('')
@@ -829,6 +937,8 @@ function applyFilters() {
     const foodTerm = document.querySelector('#filterFood').value
     const noteTerm = document.querySelector('#filterNotes').value
     const symptomTerm = document.querySelector('#filterSymptoms').value
+    const medicineTerm = document.querySelector('#filterMedicine').value
+    const medicineHelped = document.querySelector('#filterMedicineHelped').value
     const includeNextDay = document.querySelector('#filterNextDay').checked
 
     if (foodTerm && includeNextDay) {
@@ -862,6 +972,14 @@ function applyFilters() {
 
     if (foodTerm) {
         filtered = filtered.filter(entry => entryHasFood(entry, foodTerm))
+    }
+
+    if (medicineTerm) {
+        filtered = filtered.filter(entry => entryHasMedicine(entry, medicineTerm))
+    }
+
+    if (medicineHelped) {
+        filtered = filtered.filter(entry => entry.medicine_helped === medicineHelped)
     }
 
     const resultsBox = document.querySelector('#historyResults')
@@ -972,6 +1090,8 @@ document.querySelector('#filterPain').addEventListener('change', applyFilters)
 document.querySelector('#filterFood').addEventListener('change', applyFilters)
 document.querySelector('#filterNotes').addEventListener('change', applyFilters)
 document.querySelector('#filterSymptoms').addEventListener('change', applyFilters)
+document.querySelector('#filterMedicine').addEventListener('change', applyFilters)
+document.querySelector('#filterMedicineHelped').addEventListener('change', applyFilters)
 document.querySelector('#filterNextDay').addEventListener('change', applyFilters)
 
 document.querySelector('#clearFiltersButton').addEventListener('click', () => {
@@ -979,6 +1099,8 @@ document.querySelector('#clearFiltersButton').addEventListener('click', () => {
     document.querySelector('#filterFood').value = ''
     document.querySelector('#filterNotes').value = ''
     document.querySelector('#filterSymptoms').value = ''
+    document.querySelector('#filterMedicine').value = ''
+    document.querySelector('#filterMedicineHelped').value = ''
     document.querySelector('#filterNextDay').checked = false
     renderFilteredHistory()
 })
@@ -992,6 +1114,7 @@ function entryToHistoryCard(entry) {
         entry.other_food && `<p><strong>${t('cardOtherFood')}:</strong> ${translatable(entry.other_food)}</p>`,
         (entry.water_liters != null) && `<p><strong>${t('cardWater')}:</strong> ${entry.water_liters} L</p>`,
         (entry.sleep_hours != null) && `<p><strong>${t('cardSleep')}:</strong> ${entry.sleep_hours} h</p>`,
+        (entry.went_for_walk != null) && `<p><strong>${t('cardWalk')}:</strong> ${translateYesNo(entry.went_for_walk)}</p>`,
         (entry.had_period != null) && `<p><strong>${t('cardPeriod')}:</strong> ${translateYesNo(entry.had_period)}</p>`,
         entry.medicine && `<p><strong>${t('cardMedicine')}:</strong> ${translatable(entry.medicine)} ${entry.medicine_helped ? '(' + translateYesNo(entry.medicine_helped) + ')' : ''}</p>`,
         entry.other_symptoms && `<p><strong>${t('cardSymptoms')}:</strong> ${translatable(entry.other_symptoms)}</p>`,
@@ -1031,6 +1154,7 @@ function loadEntryIntoForm(entry) {
     document.querySelector('#water').value = entry.water_liters ?? ''
     document.querySelector('#sleepHours').value = entry.sleep_hours ?? ''
     document.querySelector('#sleptThrough').value = entry.slept_through ?? ''
+    document.querySelector('#wentForWalk').value = entry.went_for_walk == null ? '' : (entry.went_for_walk ? 'yes' : 'no')
     document.querySelector('#hadPeriod').value = entry.had_period == null ? '' : (entry.had_period ? 'yes' : 'no')
     document.querySelector('#headacheType').value = entry.headache_type ?? 'none'
     document.querySelector('#painLevel').value = entry.pain_level ?? 0
@@ -1263,6 +1387,53 @@ function renderWeatherChart() {
     })
 }
 
+function medicineTotalsForMonth(entries, year, month) {
+    const totals = {}
+
+    entries
+        .filter(entry => {
+            const d = new Date(entry.entry_date)
+            return d.getFullYear() === year && d.getMonth() === month
+        })
+        .forEach(entry => {
+            parseMedicineEntries(entry.medicine).forEach(({ name, count }) => {
+                totals[name] = (totals[name] || 0) + count
+            })
+        })
+
+    return Object.entries(totals).sort((a, b) => b[1] - a[1])
+}
+
+function renderMedicineStats() {
+    const now = new Date()
+    const thisMonthTotals = medicineTotalsForMonth(historyEntries, now.getFullYear(), now.getMonth())
+
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const lastMonthTotals = medicineTotalsForMonth(historyEntries, lastMonthDate.getFullYear(), lastMonthDate.getMonth())
+
+    const renderList = (containerId, totals) => {
+        const container = document.querySelector(`#${containerId}`)
+        if (totals.length === 0) {
+            container.innerHTML = `<p class="stats-empty">${t('statsNotEnoughData')}</p>`
+            return
+        }
+        container.innerHTML = `
+          <ul class="stats-trigger-list">
+            ${totals.map(([name, count]) => `
+              <li>
+                <span data-translatable data-original="${name.replace(/"/g, '&quot;')}">${name}</span>
+                <span class="stats-count">${count}×</span>
+              </li>
+            `).join('')}
+          </ul>
+        `
+        translateVisibleFreeText(container)
+    }
+
+    renderList('statsMedicineThisMonth', thisMonthTotals)
+    renderList('statsMedicineLastMonth', lastMonthTotals)
+}
+
 function renderStats() {
     if (historyEntries.length === 0) {
         document.querySelector('#statsOverview').innerHTML = `<p class="stats-empty">${t('statsNoEntries')}</p>`
@@ -1311,6 +1482,8 @@ function renderStats() {
         entry.other_symptoms ? entry.other_symptoms.split(';') : []
     )
     renderTriggerList('statsSymptomTriggers', symptomTriggers)
+
+    renderMedicineStats()
 }
 
 function painToColor(pain) {

@@ -522,6 +522,10 @@ textarea {
     .stats-triggers {
         grid-template-columns: 1fr;
     }
+
+    .stats-medicine-columns {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 900px) {
@@ -620,4 +624,28 @@ textarea {
 .chart-container {
     position: relative;
     height: 300px;
+}
+
+.stats-medicine {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 30px;
+}
+
+.stats-medicine h3 {
+    margin-top: 0;
+}
+
+.stats-medicine-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.stats-medicine-columns h4 {
+    margin: 0 0 10px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
 }
