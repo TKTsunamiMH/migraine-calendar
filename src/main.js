@@ -45,9 +45,28 @@ const translations = {
         none: 'None', headache: 'Headache', migraine: 'Migraine', painLevel: 'Pain level',
         otherSymptoms: 'Other symptoms', medicine: 'Medicine', notApplicable: 'Not applicable',
         partly: 'Partly', medicineHelped: 'Did medicine help?', notes: 'Notes',
-        alsoShowTheDayAfter: 'Also show the day after', profile: 'Profile',
+        sleptThrough: 'Slept through?', alsoShowTheDayAfter: 'Also show the day after', profile: 'Profile',
         age: 'Age', height: 'Height (cm)', weight: 'Weight (kg)', doesSport: 'Does sport?',
-        sportFrequencyType: 'Sport frequency / type', migraineInFamily: 'Migraine in family?', familyNotes: 'Family notes'
+        sportFrequencyType: 'Sport frequency / type', migraineInFamily: 'Migraine in family?', familyNotes: 'Family notes',
+        food: 'Food', notSpecified: 'Not specified',
+        noLocationSelected: 'No exact location selected yet.', selectedPrefix: 'Selected:',
+        whatDidYouEat: 'What did you eat?', dinnerSnacksDrinks: 'Dinner, snacks, drinks...',
+        symptomsPlaceholder: 'List symptoms separated by commas (e.g., Nausea, Sensitivity to light, Fatigue)',
+        stressExercisePlaceholder: 'Stress, exercise, symptoms, anything unusual...',
+        savingText: 'Saving...', entrySaved: 'Entry saved!', entryUpdated: 'Entry updated!',
+        saveError: 'Something went wrong while saving.', editingEntryFrom: 'Editing entry from',
+        couldNotLoadEntries: 'Could not load entries.',
+        pleaseSelectLocation: 'Please select an exact location first.', pleaseChooseDate: 'Please choose a date first.',
+        loadingWeather: 'Loading daily weather...', noWeatherInfo: 'No weather information was available for that day.',
+        weatherError: 'Something went wrong while retrieving the weather.',
+        pleaseEnterLocation: 'Please enter a location.', searchingText: 'Searching...',
+        noLocationsFound: 'No locations found.', locationSearchError: 'Something went wrong while searching for the location.',
+        chartPain: 'Pain level', chartPressure: 'Pressure (hPa)',
+        monthView: 'Month', yearView: 'Year',
+        strengthNoClear: 'no clear', strengthStrong: 'a strong', strengthModerate: 'a moderate', strengthWeak: 'a weak',
+        directionLowerPressure: 'lower pressure tends to come with higher pain',
+        directionHigherPressure: 'higher pressure tends to come with higher pain',
+        correlationLabel: 'Correlation:', relationshipWord: 'relationship', basedOnPrefix: 'based on', daysWord: 'days'
     },
     de: {
         appTitle: 'Migräne-Kalender',
@@ -89,9 +108,28 @@ const translations = {
         none: 'Keine', headache: 'Kopfschmerzen', migraine: 'Migräne', painLevel: 'Schmerzlevel',
         otherSymptoms: 'Andere Symptome', medicine: 'Medikament', notApplicable: 'Nicht zutreffend',
         partly: 'Teilweise', medicineHelped: 'Hat das Medikament geholfen?', notes: 'Notizen',
-        alsoShowTheDayAfter: 'Auch den Folgetag anzeigen', profile: 'Profil',
+        sleptThrough: 'Durchgeschlafen?', alsoShowTheDayAfter: 'Auch den Folgetag anzeigen', profile: 'Profil',
         age: 'Alter', height: 'Größe (cm)', weight: 'Gewicht (kg)', doesSport: 'Treibt Sport?',
-        sportFrequencyType: 'Sportart / Häufigkeit', migraineInFamily: 'Migräne in der Familie?', familyNotes: 'Notizen zur Familie'
+        sportFrequencyType: 'Sportart / Häufigkeit', migraineInFamily: 'Migräne in der Familie?', familyNotes: 'Notizen zur Familie',
+        food: 'Essen', notSpecified: 'Nicht angegeben',
+        noLocationSelected: 'Noch kein genauer Ort ausgewählt.', selectedPrefix: 'Ausgewählt:',
+        whatDidYouEat: 'Was hast du gegessen?', dinnerSnacksDrinks: 'Abendessen, Snacks, Getränke...',
+        symptomsPlaceholder: 'Symptome durch Kommas getrennt auflisten (z. B. Übelkeit, Lichtempfindlichkeit, Erschöpfung)',
+        stressExercisePlaceholder: 'Stress, Sport, Symptome, alles Ungewöhnliche...',
+        savingText: 'Speichern...', entrySaved: 'Eintrag gespeichert!', entryUpdated: 'Eintrag aktualisiert!',
+        saveError: 'Beim Speichern ist etwas schiefgelaufen.', editingEntryFrom: 'Bearbeite Eintrag vom',
+        couldNotLoadEntries: 'Einträge konnten nicht geladen werden.',
+        pleaseSelectLocation: 'Bitte zuerst einen genauen Ort auswählen.', pleaseChooseDate: 'Bitte zuerst ein Datum wählen.',
+        loadingWeather: 'Tageswetter wird geladen...', noWeatherInfo: 'Für diesen Tag waren keine Wetterdaten verfügbar.',
+        weatherError: 'Beim Abrufen des Wetters ist etwas schiefgelaufen.',
+        pleaseEnterLocation: 'Bitte einen Ort eingeben.', searchingText: 'Suche läuft...',
+        noLocationsFound: 'Keine Orte gefunden.', locationSearchError: 'Bei der Ortssuche ist etwas schiefgelaufen.',
+        chartPain: 'Schmerzlevel', chartPressure: 'Luftdruck (hPa)',
+        monthView: 'Monat', yearView: 'Jahr',
+        strengthNoClear: 'kein klarer', strengthStrong: 'ein starker', strengthModerate: 'ein moderater', strengthWeak: 'ein schwacher',
+        directionLowerPressure: 'niedrigerer Luftdruck geht tendenziell mit stärkeren Schmerzen einher',
+        directionHigherPressure: 'höherer Luftdruck geht tendenziell mit stärkeren Schmerzen einher',
+        correlationLabel: 'Korrelation:', relationshipWord: 'Zusammenhang', basedOnPrefix: 'basierend auf', daysWord: 'Tagen'
     },
     sv: {
         appTitle: 'Migränkalender',
@@ -133,9 +171,28 @@ const translations = {
         none: 'Ingen', headache: 'Huvudvärk', migraine: 'Migrän', painLevel: 'Smärtnivå',
         otherSymptoms: 'Andra symtom', medicine: 'Medicin', notApplicable: 'Ej tillämpligt',
         partly: 'Delvis', medicineHelped: 'Hjälpte medicinen?', notes: 'Anteckningar',
-        alsoShowTheDayAfter: 'Visa även dagen efter', profile: 'Profil',
+        sleptThrough: 'Sov du hela natten?', alsoShowTheDayAfter: 'Visa även dagen efter', profile: 'Profil',
         age: 'Ålder', height: 'Längd (cm)', weight: 'Vikt (kg)', doesSport: 'Tränar du?',
-        sportFrequencyType: 'Typ av träning / frekvens', migraineInFamily: 'Migrän i familjen?', familyNotes: 'Anteckningar om familjen'
+        sportFrequencyType: 'Typ av träning / frekvens', migraineInFamily: 'Migrän i familjen?', familyNotes: 'Anteckningar om familjen',
+        food: 'Mat', notSpecified: 'Ej angivet',
+        noLocationSelected: 'Ingen exakt plats vald än.', selectedPrefix: 'Vald:',
+        whatDidYouEat: 'Vad åt du?', dinnerSnacksDrinks: 'Middag, mellanmål, drycker...',
+        symptomsPlaceholder: 'Lista symtom separerade med komma (t.ex. illamående, ljuskänslighet, trötthet)',
+        stressExercisePlaceholder: 'Stress, träning, symtom, allt ovanligt...',
+        savingText: 'Sparar...', entrySaved: 'Post sparad!', entryUpdated: 'Post uppdaterad!',
+        saveError: 'Något gick fel vid sparande.', editingEntryFrom: 'Redigerar post från',
+        couldNotLoadEntries: 'Kunde inte ladda poster.',
+        pleaseSelectLocation: 'Välj en exakt plats först.', pleaseChooseDate: 'Välj ett datum först.',
+        loadingWeather: 'Laddar dagens väder...', noWeatherInfo: 'Ingen väderinformation fanns för denna dag.',
+        weatherError: 'Något gick fel vid hämtning av väder.',
+        pleaseEnterLocation: 'Ange en plats.', searchingText: 'Söker...',
+        noLocationsFound: 'Inga platser hittades.', locationSearchError: 'Något gick fel vid platssökningen.',
+        chartPain: 'Smärtnivå', chartPressure: 'Lufttryck (hPa)',
+        monthView: 'Månad', yearView: 'År',
+        strengthNoClear: 'inget tydligt', strengthStrong: 'ett starkt', strengthModerate: 'ett måttligt', strengthWeak: 'ett svagt',
+        directionLowerPressure: 'lägre lufttryck tenderar att förekomma tillsammans med högre smärta',
+        directionHigherPressure: 'högre lufttryck tenderar att förekomma tillsammans med högre smärta',
+        correlationLabel: 'Korrelation:', relationshipWord: 'samband', basedOnPrefix: 'baserat på', daysWord: 'dagar'
     }
 }
 
@@ -211,6 +268,10 @@ function applyTranslations() {
     document.querySelectorAll('.lang-button').forEach(btn => {
         btn.classList.toggle('active-view', btn.dataset.lang === currentLang)
     })
+    if (typeof populateFoodFilter === 'function') populateFoodFilter()
+    if (typeof populateNotesFilter === 'function') populateNotesFilter()
+    if (typeof populateSymptomFilter === 'function') populateSymptomFilter()
+    if (typeof populateMedicineFilter === 'function') populateMedicineFilter()
     renderFilteredHistory()
     renderStats()
 }
@@ -286,7 +347,7 @@ document.querySelector('#app').innerHTML = `
       <button type="button" class="secondary-button lang-button" data-lang="en">EN</button>
       <button type="button" class="secondary-button lang-button" data-lang="de">DE</button>
       <button type="button" class="secondary-button lang-button" data-lang="sv">SV</button>
-      <button type="button" id="logoutButton" class="secondary-button">Sign out</button>
+      <button type="button" id="logoutButton" class="secondary-button" data-i18n="signOut">Sign out</button>
     </header>
 
     <nav class="nav">
@@ -325,13 +386,14 @@ document.querySelector('#app').innerHTML = `
     type="button"
     id="locationSearchButton"
     class="secondary-button"
+    data-i18n="searchLocation"
   >
     Search location
   </button>
 
   <div id="locationResults"></div>
 
-  <p id="selectedLocation">
+  <p id="selectedLocation" data-i18n="noLocationSelected">
     No exact location selected yet.
   </p>
 </div>
@@ -339,17 +401,17 @@ document.querySelector('#app').innerHTML = `
             <div class="wide food-row">
               <label>
                 <span data-i18n="breakfast">Breakfast</span>
-                <textarea id="breakfast" placeholder="What did you eat?"></textarea>
+                <textarea id="breakfast" data-i18n-placeholder="whatDidYouEat" placeholder="What did you eat?"></textarea>
               </label>
 
               <label>
                 <span data-i18n="lunch">Lunch</span>
-                <textarea id="lunch" placeholder="What did you eat?"></textarea>
+                <textarea id="lunch" data-i18n-placeholder="whatDidYouEat" placeholder="What did you eat?"></textarea>
               </label>
 
               <label>
                 <span data-i18n="otherFood">Other food</span>
-                <textarea id="otherFood" placeholder="Dinner, snacks, drinks..."></textarea>
+                <textarea id="otherFood" data-i18n-placeholder="dinnerSnacksDrinks" placeholder="Dinner, snacks, drinks..."></textarea>
               </label>
             </div>
 
@@ -408,7 +470,7 @@ document.querySelector('#app').innerHTML = `
 
             <label>
               <span data-i18n="otherSymptoms">Other symptoms</span>
-              <textarea id="otherSymptoms" placeholder="List symptoms separated by commas (e.g., Nausea, Sensitivity to light, Fatigue)"></textarea>
+              <textarea id="otherSymptoms" data-i18n-placeholder="symptomsPlaceholder" placeholder="List symptoms separated by commas (e.g., Nausea, Sensitivity to light, Fatigue)"></textarea>
             </label>
 
             <label>
@@ -427,21 +489,21 @@ document.querySelector('#app').innerHTML = `
             </label>
 
             <div class="weather-card">
-              <h3>Weather</h3>
-              <p id="weatherStatus">Weather connection will be added next.</p>
-              <button type="button" id="weatherButton" class="secondary-button">
+              <h3 data-i18n="weatherTitle">Weather</h3>
+              <p id="weatherStatus" data-i18n="weatherPlaceholder">Weather connection will be added next.</p>
+              <button type="button" id="weatherButton" class="secondary-button" data-i18n="getWeather">
                 Get weather
               </button>
             </div>
 
             <label>
               <span data-i18n="notes">Notes</span>
-              <textarea id="notes" placeholder="Stress, exercise, symptoms, anything unusual..."></textarea>
+              <textarea id="notes" data-i18n-placeholder="stressExercisePlaceholder" placeholder="Stress, exercise, symptoms, anything unusual..."></textarea>
             </label>
 
           </div>
 
-          <button class="save-button" type="submit">Save Entry</button>
+          <button class="save-button" type="submit" data-i18n="saveEntry">Save Entry</button>
           <button type="button" id="cancelEditButton" class="secondary-button" style="display:none">Cancel edit</button>
           <p id="saveMessage"></p>
         </form>
@@ -449,8 +511,8 @@ document.querySelector('#app').innerHTML = `
 
       <section id="calendar-page" class="page">
   <div class="calendar-view-toggle">
-    <button type="button" id="monthViewButton" class="secondary-button active-view">Month</button>
-    <button type="button" id="yearViewButton" class="secondary-button">Year</button>
+    <button type="button" id="monthViewButton" class="secondary-button active-view" data-i18n="monthView">Month</button>
+    <button type="button" id="yearViewButton" class="secondary-button" data-i18n="yearView">Year</button>
   </div>
   <div class="calendar-header">
     <button type="button" id="prevMonth" class="secondary-button">←</button>
@@ -463,12 +525,12 @@ document.querySelector('#app').innerHTML = `
 </section>
 
       <section id="history-page" class="page">
-        <h2>History</h2>
+        <h2 data-i18n="historyTitle">History</h2>
         <div class="filter-panel">
           <label>
-            Min pain level
+            <span data-i18n="minPainLevel">Min pain level</span>
             <select id="filterPain">
-              <option value="">Any</option>
+              <option value="" data-i18n="any">Any</option>
               <option value="0">0+</option>
               <option value="1">1+</option>
               <option value="2">2+</option>
@@ -483,33 +545,33 @@ document.querySelector('#app').innerHTML = `
             </select>
           </label>
           <label>
-            Food
+            <span data-i18n="food">Food</span>
             <select id="filterFood">
-              <option value="">Any</option>
+              <option value="" data-i18n="any">Any</option>
             </select>
           </label>
           <label>
-            Notes
+            <span data-i18n="notes">Notes</span>
             <select id="filterNotes">
-              <option value="">Any</option>
+              <option value="" data-i18n="any">Any</option>
             </select>
           </label>
           <label>
             <span data-i18n="otherSymptoms">Other symptoms</span>
             <select id="filterSymptoms">
-              <option value="">Any</option>
+              <option value="" data-i18n="any">Any</option>
             </select>
           </label>
           <label>
             <span data-i18n="medicine">Medicine</span>
             <select id="filterMedicine">
-              <option value="">Any</option>
+              <option value="" data-i18n="any">Any</option>
             </select>
           </label>
           <label>
             <span data-i18n="medicineHelped">Did medicine help?</span>
             <select id="filterMedicineHelped">
-              <option value="">Any</option>
+              <option value="" data-i18n="any">Any</option>
               <option value="yes" data-i18n="yes">Yes</option>
               <option value="partly" data-i18n="partly">Partly</option>
               <option value="no" data-i18n="no">No</option>
@@ -528,13 +590,13 @@ document.querySelector('#app').innerHTML = `
 
         <div id="profileViewMode">
           <div class="profile-display">
-            <p><strong data-i18n="age">Age:</strong> <span id="displayAge">Not specified</span></p>
-            <p><strong data-i18n="height">Height:</strong> <span id="displayHeight">Not specified</span></p>
-            <p><strong data-i18n="weight">Weight:</strong> <span id="displayWeight">Not specified</span></p>
-            <p><strong data-i18n="doesSport">Does sport?:</strong> <span id="displayDoesSport">Not specified</span></p>
-            <p><strong data-i18n="sportFrequencyType">Sport frequency / type:</strong> <span id="displaySportFrequency">Not specified</span></p>
-            <p><strong data-i18n="migraineInFamily">Migraine in family?:</strong> <span id="displayMigraineFamily">Not specified</span></p>
-            <p><strong data-i18n="familyNotes">Family notes:</strong> <span id="displayFamilyNotes">Not specified</span></p>
+            <p><strong data-i18n="age">Age:</strong> <span id="displayAge" data-i18n="notSpecified">Not specified</span></p>
+            <p><strong data-i18n="height">Height:</strong> <span id="displayHeight" data-i18n="notSpecified">Not specified</span></p>
+            <p><strong data-i18n="weight">Weight:</strong> <span id="displayWeight" data-i18n="notSpecified">Not specified</span></p>
+            <p><strong data-i18n="doesSport">Does sport?:</strong> <span id="displayDoesSport" data-i18n="notSpecified">Not specified</span></p>
+            <p><strong data-i18n="sportFrequencyType">Sport frequency / type:</strong> <span id="displaySportFrequency" data-i18n="notSpecified">Not specified</span></p>
+            <p><strong data-i18n="migraineInFamily">Migraine in family?:</strong> <span id="displayMigraineFamily" data-i18n="notSpecified">Not specified</span></p>
+            <p><strong data-i18n="familyNotes">Family notes:</strong> <span id="displayFamilyNotes" data-i18n="notSpecified">Not specified</span></p>
           </div>
           <button type="button" id="profileEditButton" class="save-button" data-i18n="editProfile">Edit Profile</button>
         </div>
@@ -587,13 +649,13 @@ document.querySelector('#app').innerHTML = `
 
           </div>
 
-          <button class="save-button" type="submit">Save Profile</button>
-          <button type="button" id="profileCancelButton" class="secondary-button">Cancel</button>
+          <button class="save-button" type="submit" data-i18n="saveProfile">Save Profile</button>
+          <button type="button" id="profileCancelButton" class="secondary-button" data-i18n="cancel">Cancel</button>
           <p id="profileSaveMessage"></p>
         </form>
       </section>
       <section id="stats-page" class="page">
-        <h2>Stats</h2>
+        <h2 data-i18n="statsTitle">Stats</h2>
         <div id="statsOverview" class="stats-overview"></div>
 
         <div class="stats-weather">
@@ -676,7 +738,7 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
     event.preventDefault()
 
     const saveMessage = document.querySelector('#saveMessage')
-    saveMessage.textContent = 'Saving...'
+    saveMessage.textContent = t('savingText')
 
     const entry = {
         entry_date: document.querySelector('#date').value,
@@ -713,11 +775,11 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
 
     if (error) {
         console.error(error)
-        saveMessage.textContent = 'Something went wrong while saving.'
+        saveMessage.textContent = t('saveError')
         return
     }
 
-    saveMessage.textContent = editingEntryId ? 'Entry updated!' : 'Entry saved!'
+    saveMessage.textContent = editingEntryId ? t('entryUpdated') : t('entrySaved')
     document.querySelector('#migraine-form').reset()
     document.querySelector('#cancelEditButton').style.display = 'none'
     window.currentWeather = null
@@ -759,7 +821,7 @@ async function loadHistory() {
         .order('entry_date', { ascending: false })
 
     if (error) {
-        resultsBox.innerHTML = '<p>Could not load entries.</p>'
+        resultsBox.innerHTML = `<p>${t('couldNotLoadEntries')}</p>`
         return
     }
 
@@ -819,7 +881,7 @@ function populateFoodFilter() {
     const currentValue = select.value
     const items = extractFoodItems(historyEntries)
 
-    select.innerHTML = '<option value="">Any</option>' +
+    select.innerHTML = `<option value="">${t('any')}</option>` +
         items.map(item => `<option value="${item}">${item}</option>`).join('')
 
     select.value = currentValue
@@ -849,7 +911,7 @@ function populateNotesFilter() {
     const currentValue = select.value
     const items = extractNoteItems(historyEntries)
 
-    select.innerHTML = '<option value="">Any</option>' +
+    select.innerHTML = `<option value="">${t('any')}</option>` +
         items.map(item => `<option value="${item}">${item}</option>`).join('')
 
     select.value = currentValue
@@ -904,7 +966,7 @@ function populateSymptomFilter() {
     const currentValue = select.value
     const items = extractSymptomItems(historyEntries)
 
-    select.innerHTML = '<option value="">Any</option>' +
+    select.innerHTML = `<option value="">${t('any')}</option>` +
         items.map(item => `<option value="${item}">${item}</option>`).join('')
 
     select.value = currentValue
@@ -915,7 +977,7 @@ function populateMedicineFilter() {
     const currentValue = select.value
     const items = extractMedicineNames(historyEntries)
 
-    select.innerHTML = '<option value="">Any</option>' +
+    select.innerHTML = `<option value="">${t('any')}</option>` +
         items.map(item => `<option value="${item}">${item}</option>`).join('')
 
     select.value = currentValue
@@ -1173,10 +1235,10 @@ function loadEntryIntoForm(entry) {
             admin2: '',
             country: ''
         }
-        document.querySelector('#selectedLocation').textContent = `Selected: ${entry.location_name}`
+        document.querySelector('#selectedLocation').textContent = `${t('selectedPrefix')} ${entry.location_name}`
     }
 
-    document.querySelector('#saveMessage').textContent = `Editing entry from ${entry.entry_date}`
+    document.querySelector('#saveMessage').textContent = `${t('editingEntryFrom')} ${entry.entry_date}`
     document.querySelector('#cancelEditButton').style.display = 'inline-block'
 
     // Switch to the Today tab
@@ -1322,18 +1384,18 @@ function renderWeatherChart() {
         withPressure.map(e => e.pain_level)
     )
 
-    let strength = 'no clear'
+    let strength = t('strengthNoClear')
     if (r !== null) {
         const abs = Math.abs(r)
-        if (abs >= 0.5) strength = 'a strong'
-        else if (abs >= 0.3) strength = 'a moderate'
-        else if (abs >= 0.1) strength = 'a weak'
+        if (abs >= 0.5) strength = t('strengthStrong')
+        else if (abs >= 0.3) strength = t('strengthModerate')
+        else if (abs >= 0.1) strength = t('strengthWeak')
     }
 
-    const direction = r !== null && r < 0 ? 'lower pressure tends to come with higher pain' : 'higher pressure tends to come with higher pain'
+    const direction = r !== null && r < 0 ? t('directionLowerPressure') : t('directionHigherPressure')
 
     correlationLabel.textContent = r !== null
-        ? `Correlation: ${r.toFixed(2)} — ${strength} relationship (${direction}), based on ${withPressure.length} days.`
+        ? `${t('correlationLabel')} ${r.toFixed(2)} — ${strength} ${t('relationshipWord')} (${direction}), ${t('basedOnPrefix')} ${withPressure.length} ${t('daysWord')}.`
         : t('statsNoCorrelation')
 
     const ctx = document.querySelector('#weatherChart').getContext('2d')
@@ -1348,7 +1410,7 @@ function renderWeatherChart() {
             labels: withPressure.map(e => e.entry_date),
             datasets: [
                 {
-                    label: 'Pain level',
+                    label: t('chartPain'),
                     data: withPressure.map(e => e.pain_level),
                     borderColor: '#e53935',
                     backgroundColor: '#e53935',
@@ -1356,7 +1418,7 @@ function renderWeatherChart() {
                     tension: 0.2
                 },
                 {
-                    label: 'Pressure (hPa)',
+                    label: t('chartPressure'),
                     data: withPressure.map(e => e.pressure_avg),
                     borderColor: '#1976d2',
                     backgroundColor: '#1976d2',
@@ -1374,13 +1436,13 @@ function renderWeatherChart() {
                     position: 'left',
                     min: 0,
                     max: 10,
-                    title: { display: true, text: 'Pain level' }
+                    title: { display: true, text: t('chartPain') }
                 },
                 y1: {
                     type: 'linear',
                     position: 'right',
                     grid: { drawOnChartArea: false },
-                    title: { display: true, text: 'Pressure (hPa)' }
+                    title: { display: true, text: t('chartPressure') }
                 }
             }
         }
@@ -1866,18 +1928,16 @@ async function getWeather() {
     const weatherStatus = document.querySelector('#weatherStatus')
 
     if (!selectedLocationData) {
-        weatherStatus.textContent =
-            'Please select an exact location first.'
+        weatherStatus.textContent = t('pleaseSelectLocation')
         return
     }
 
     if (!date) {
-        weatherStatus.textContent =
-            'Please choose a date first.'
+        weatherStatus.textContent = t('pleaseChooseDate')
         return
     }
 
-    weatherStatus.textContent = 'Loading daily weather...'
+    weatherStatus.textContent = t('loadingWeather')
 
     try {
         const latitude = selectedLocationData.latitude
@@ -1902,8 +1962,7 @@ async function getWeather() {
         const data = await response.json()
 
         if (!data.daily || !data.hourly) {
-            weatherStatus.textContent =
-                'No weather information was available for that day.'
+            weatherStatus.textContent = t('noWeatherInfo')
             return
         }
 
@@ -2013,12 +2072,12 @@ async function searchLocation() {
 
     const searchText = locationInput.value.trim()
 
-    if (!searchText) {
-        resultsBox.innerHTML = '<p>Please enter a location.</p>'
+        if (!searchText) {
+        resultsBox.innerHTML = `<p>${t('pleaseEnterLocation')}</p>`
         return
     }
 
-    resultsBox.innerHTML = '<p>Searching...</p>'
+    resultsBox.innerHTML = `<p>${t('searchingText')}</p>`
 
     try {
         const url =
@@ -2035,7 +2094,7 @@ async function searchLocation() {
         const data = await response.json()
 
         if (!data.results || data.results.length === 0) {
-            resultsBox.innerHTML = '<p>No locations found.</p>'
+            resultsBox.innerHTML = `<p>${t('noLocationsFound')}</p>`
             return
         }
 
@@ -2074,7 +2133,7 @@ async function searchLocation() {
                 ].filter(Boolean)
 
                 selectedLocationText.textContent =
-                    `Selected: ${selectedParts.join(', ')}`
+                    `${t('selectedPrefix')} ${selectedParts.join(', ')}`
 
                 resultsBox.innerHTML = ''
             })
@@ -2085,8 +2144,7 @@ async function searchLocation() {
     } catch (error) {
         console.error(error)
 
-        resultsBox.innerHTML =
-            '<p>Something went wrong while searching for the location.</p>'
+        resultsBox.innerHTML = `<p>${t('locationSearchError')}</p>`
     }
 }
 
