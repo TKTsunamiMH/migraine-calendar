@@ -649,3 +649,37 @@ textarea {
     font-size: 0.9rem;
     color: var(--text-muted);
 }
+
+@media print {
+    .header,
+    .nav,
+    .filter-panel,
+    .secondary-button,
+    #calendarDetail .edit-entry-button,
+    .history-card-footer {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .history-card {
+        background: white !important;
+        border: 1px solid #999 !important;
+        color: black !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 12px;
+    }
+
+    .page:not(.active) {
+        display: none !important;
+    }
+
+    .app-container {
+        max-width: 100%;
+        padding: 0;
+    }
+}

@@ -66,7 +66,8 @@ const translations = {
         strengthNoClear: 'no clear', strengthStrong: 'a strong', strengthModerate: 'a moderate', strengthWeak: 'a weak',
         directionLowerPressure: 'lower pressure tends to come with higher pain',
         directionHigherPressure: 'higher pressure tends to come with higher pain',
-        correlationLabel: 'Correlation:', relationshipWord: 'relationship', basedOnPrefix: 'based on', daysWord: 'days'
+        correlationLabel: 'Correlation:', relationshipWord: 'relationship', basedOnPrefix: 'based on', daysWord: 'days',
+        exportSql: 'Export as SQL', printHistory: 'Print'
     },
     de: {
         appTitle: 'Migräne-Kalender',
@@ -129,7 +130,8 @@ const translations = {
         strengthNoClear: 'kein klarer', strengthStrong: 'ein starker', strengthModerate: 'ein moderater', strengthWeak: 'ein schwacher',
         directionLowerPressure: 'niedrigerer Luftdruck geht tendenziell mit stärkeren Schmerzen einher',
         directionHigherPressure: 'höherer Luftdruck geht tendenziell mit stärkeren Schmerzen einher',
-        correlationLabel: 'Korrelation:', relationshipWord: 'Zusammenhang', basedOnPrefix: 'basierend auf', daysWord: 'Tagen'
+        correlationLabel: 'Korrelation:', relationshipWord: 'Zusammenhang', basedOnPrefix: 'basierend auf', daysWord: 'Tagen',
+        exportSql: 'Als SQL exportieren', printHistory: 'Drucken'
     },
     sv: {
         appTitle: 'Migränkalender',
@@ -192,7 +194,8 @@ const translations = {
         strengthNoClear: 'inget tydligt', strengthStrong: 'ett starkt', strengthModerate: 'ett måttligt', strengthWeak: 'ett svagt',
         directionLowerPressure: 'lägre lufttryck tenderar att förekomma tillsammans med högre smärta',
         directionHigherPressure: 'högre lufttryck tenderar att förekomma tillsammans med högre smärta',
-        correlationLabel: 'Korrelation:', relationshipWord: 'samband', basedOnPrefix: 'baserat på', daysWord: 'dagar'
+        correlationLabel: 'Korrelation:', relationshipWord: 'samband', basedOnPrefix: 'baserat på', daysWord: 'dagar',
+        exportSql: 'Exportera som SQL', printHistory: 'Skriv ut'
     }
 }
 
@@ -582,6 +585,8 @@ document.querySelector('#app').innerHTML = `
             <span data-i18n="alsoShowTheDayAfter">Also show the day after</span>
           </label>
           <button type="button" id="clearFiltersButton" class="secondary-button" data-i18n="clearFilters">Clear filters</button>
+          <button type="button" id="exportSqlButton" class="secondary-button" data-i18n="exportSql">Export as SQL</button>
+          <button type="button" id="printButton" class="secondary-button" data-i18n="printHistory">Print</button>
         </div>
         <div id="historyResults"></div>
       </section>
@@ -1064,6 +1069,197 @@ function applyFilters() {
         })
     })
 }
+
+function sqlEscape(value) {
+    if (value === null || value === undefined) return 'NULL'
+    if (typeof value === 'number') return value
+    if (typeof value === 'boolean') return value ? 'true' : 'false'
+    return `'${String(value).replace(/'/g, "''")}'`
+}
+
+function exportEntriesAsSql() {
+    if (historyEntries.length === 0) return
+
+    const columns = [
+        'entry_date', 'breakfast', 'lunch', 'other_food', 'water_liters', 'sleep_hours',
+        'slept_through', 'went_for_walk', 'had_period', 'headache_type', 'pain_level',
+        'other_symptoms', 'medicine', 'medicine_helped', 'notes', 'location_name',
+        'latitude', 'longitude', 'weather_description', 'temp_min', 'temp_max',
+        'precipitation', 'humidity_avg', 'pressure_avg', 'pressure_min', 'pressure_max'
+    ]
+
+    const statements = historyEntries.map(entry => {
+        const values = columns.map(col => sqlEscape(entry[col])).join(', ')
+        return `INSERT INTO entries (${columns.join(', ')}) VALUES (${values});`
+    })
+
+    const sqlContent = statements.join('\n')
+    const blob = new Blob([sqlContent], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `migraine-entries-${new Date().toISOString().slice(0, 10)}.sql`
+    link.click()
+
+    URL.revokeObjectURL(url)
+}
+
+document.querySelector('#exportSqlButton').addEventListener('click', exportEntriesAsSql)
+
+function generatePrintTable(entries) {
+    if (entries.length === 0) {
+        return `<p>${t('noEntriesMatch')}</p>`
+    }
+
+    const tableRows = entries.map(entry => `
+        <tr>
+            <td>${entry.entry_date}</td>
+            <td>${entry.location_name ?? ''}</td>
+            <td>${translateHeadacheType(entry.headache_type)}</td>
+            <td>${entry.pain_level}</td>
+            <td>${entry.breakfast ?? ''}</td>
+            <td>${entry.lunch ?? ''}</td>
+            <td>${entry.other_food ?? ''}</td>
+            <td>${entry.water_liters ?? ''}</td>
+            <td>${entry.sleep_hours ?? ''}</td>
+            <td>${entry.went_for_walk == null ? '' : translateYesNo(entry.went_for_walk)}</td>
+            <td>${entry.had_period == null ? '' : translateYesNo(entry.had_period)}</td>
+            <td>${entry.medicine ?? ''}</td>
+            <td>${entry.other_symptoms ?? ''}</td>
+            <td>${entry.notes ?? ''}</td>
+        </tr>
+    `).join('')
+
+    return `
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th>${t('date')}</th>
+                    <th>${t('location')}</th>
+                    <th>${t('headacheType')}</th>
+                    <th>${t('pain')}</th>
+                    <th>${t('breakfast')}</th>
+                    <th>${t('lunch')}</th>
+                    <th>${t('otherFood')}</th>
+                    <th>${t('waterLiters')}</th>
+                    <th>${t('hoursOfSleep')}</th>
+                    <th>${t('wentForWalk')}</th>
+                    <th>${t('period')}</th>
+                    <th>${t('medicine')}</th>
+                    <th>${t('otherSymptoms')}</th>
+                    <th>${t('notes')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRows}
+            </tbody>
+        </table>
+    `
+}
+
+document.querySelector('#printButton').addEventListener('click', () => {
+    // Get the currently filtered entries
+    let entriesToPrint = historyEntries
+
+    // Apply the same filters as the history view
+    const minPainLevel = document.querySelector('#filterPain').value
+    const foodFilter = document.querySelector('#filterFood').value
+    const notesFilter = document.querySelector('#filterNotes').value
+    const symptomsFilter = document.querySelector('#filterSymptoms').value
+    const medicineFilter = document.querySelector('#filterMedicine').value
+    const medicineHelpedFilter = document.querySelector('#filterMedicineHelped').value
+    const showDayAfter = document.querySelector('#filterNextDay').checked
+
+    let filtered = entriesToPrint
+    if (minPainLevel !== '') filtered = filtered.filter(e => e.pain_level >= parseInt(minPainLevel))
+    if (foodFilter !== '') {
+        filtered = filtered.filter(e => {
+            const foodStr = (e.breakfast ?? '') + ' ' + (e.lunch ?? '') + ' ' + (e.other_food ?? '')
+            return foodStr.toLowerCase().includes(foodFilter.toLowerCase())
+        })
+    }
+    if (notesFilter !== '') {
+        filtered = filtered.filter(e => (e.notes ?? '').toLowerCase().includes(notesFilter.toLowerCase()))
+    }
+    if (symptomsFilter !== '') {
+        filtered = filtered.filter(e => (e.other_symptoms ?? '').toLowerCase().includes(symptomsFilter.toLowerCase()))
+    }
+    if (medicineFilter !== '') {
+        filtered = filtered.filter(e => (e.medicine ?? '').toLowerCase().includes(medicineFilter.toLowerCase()))
+    }
+    if (medicineHelpedFilter !== '') {
+        filtered = filtered.filter(e => {
+            if (medicineHelpedFilter === 'yes') return e.medicine_helped === 'yes'
+            if (medicineHelpedFilter === 'partly') return e.medicine_helped === 'partly'
+            if (medicineHelpedFilter === 'no') return e.medicine_helped === 'no'
+        })
+    }
+
+    // Create print window
+    const printWindow = window.open('', '', 'width=1200,height=800')
+    const printTable = generatePrintTable(filtered)
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Migraine Calendar - ${new Date().toISOString().slice(0, 10)}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    background: white;
+                    color: black;
+                }
+                h1 {
+                    text-align: center;
+                    margin-bottom: 30px;
+                }
+                .print-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                .print-table th {
+                    background-color: #333;
+                    color: white;
+                    padding: 12px;
+                    text-align: left;
+                    font-weight: bold;
+                    border: 1px solid #999;
+                }
+                .print-table td {
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    word-break: break-word;
+                }
+                .print-table tbody tr:nth-child(even) {
+                    background-color: #f5f5f5;
+                }
+                @media print {
+                    body {
+                        margin: 0;
+                    }
+                    .print-table {
+                        font-size: 11px;
+                    }
+                    .print-table th, .print-table td {
+                        padding: 8px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Migraine Calendar - History</h1>
+            ${printTable}
+        </body>
+        </html>
+    `)
+    printWindow.document.close()
+    printWindow.print()
+})
 
 let foodPairEntriesByDate = {}
 let foodPairAnchors = []
