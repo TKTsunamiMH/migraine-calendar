@@ -1,8 +1,8 @@
 ﻿import { supabase } from './supabaseClient.js'
 import './style.css'
-import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend } from 'chart.js'
+import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, BarController, BarElement } from 'chart.js'
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend)
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, BarController, BarElement)
 
 const translations = {
     en: {
@@ -67,7 +67,17 @@ const translations = {
         directionLowerPressure: 'lower pressure tends to come with higher pain',
         directionHigherPressure: 'higher pressure tends to come with higher pain',
         correlationLabel: 'Correlation:', relationshipWord: 'relationship', basedOnPrefix: 'based on', daysWord: 'days',
-        exportSql: 'Export as SQL', printHistory: 'Print'
+        exportSql: 'Export as SQL', printHistory: 'Print',
+        dailyMedsTitle: 'Regular medication', medDose: 'Dose per pill', medPills: 'Pills per day',
+        medStartDate: 'Started on', addMedication: 'Add medication',
+        noDailyMeds: 'No regular medication added yet.', perDay: 'day', delete: 'Delete',
+        confirmDelete: 'Delete this medication?', sinceMedication: 'Since starting',
+        medTrendTitle: 'Migraine days per month vs. regular medication',
+        medTrendNoData: 'Add a regular medication (Profile tab) and some entries to see the trend.',
+        medTrendNotEnough: 'Not enough data yet: at least 14 tracked days before and after the start are needed.',
+        medTrendBefore: 'Before', medTrendAfter: 'Since start', medTrendUnit: 'migraine days per 30 days',
+        medTrendMigraineLabel: 'Migraine days (per 30 days)', trackedDaysWord: 'tracked days',
+        medTrendNote: 'Grey = before, orange = start month, green = after. Changes usually take 1–3 months to show, and weather, cycle and stress also play a role, so treat this as a hint to discuss with your doctor, not proof.'
     },
     de: {
         appTitle: 'Migräne-Kalender',
@@ -131,7 +141,17 @@ const translations = {
         directionLowerPressure: 'niedrigerer Luftdruck geht tendenziell mit stärkeren Schmerzen einher',
         directionHigherPressure: 'höherer Luftdruck geht tendenziell mit stärkeren Schmerzen einher',
         correlationLabel: 'Korrelation:', relationshipWord: 'Zusammenhang', basedOnPrefix: 'basierend auf', daysWord: 'Tagen',
-        exportSql: 'Als SQL exportieren', printHistory: 'Drucken'
+        exportSql: 'Als SQL exportieren', printHistory: 'Drucken',
+        dailyMedsTitle: 'Dauermedikation', medDose: 'Dosis pro Tablette', medPills: 'Tabletten pro Tag',
+        medStartDate: 'Begonnen am', addMedication: 'Medikament hinzufügen',
+        noDailyMeds: 'Noch keine Dauermedikation eingetragen.', perDay: 'Tag', delete: 'Löschen',
+        confirmDelete: 'Dieses Medikament löschen?', sinceMedication: 'Seit Beginn von',
+        medTrendTitle: 'Migränetage pro Monat vs. Dauermedikation',
+        medTrendNoData: 'Trage eine Dauermedikation (Tab Profil) und einige Einträge ein, um den Verlauf zu sehen.',
+        medTrendNotEnough: 'Noch nicht genug Daten: mindestens 14 erfasste Tage vor und nach Beginn werden benötigt.',
+        medTrendBefore: 'Davor', medTrendAfter: 'Seit Beginn', medTrendUnit: 'Migränetage pro 30 Tage',
+        medTrendMigraineLabel: 'Migränetage (pro 30 Tage)', trackedDaysWord: 'erfasste Tage',
+        medTrendNote: 'Grau = davor, orange = Startmonat, grün = danach. Veränderungen zeigen sich meist erst nach 1–3 Monaten, und Wetter, Zyklus und Stress spielen ebenfalls eine Rolle. Sieh das als Hinweis für das Gespräch mit deinem Arzt, nicht als Beweis.'
     },
     sv: {
         appTitle: 'Migränkalender',
@@ -195,12 +215,24 @@ const translations = {
         directionLowerPressure: 'lägre lufttryck tenderar att förekomma tillsammans med högre smärta',
         directionHigherPressure: 'högre lufttryck tenderar att förekomma tillsammans med högre smärta',
         correlationLabel: 'Korrelation:', relationshipWord: 'samband', basedOnPrefix: 'baserat på', daysWord: 'dagar',
-        exportSql: 'Exportera som SQL', printHistory: 'Skriv ut'
+        exportSql: 'Exportera som SQL', printHistory: 'Skriv ut',
+        dailyMedsTitle: 'Regelbunden medicinering', medDose: 'Dos per tablett', medPills: 'Tabletter per dag',
+        medStartDate: 'Påbörjad', addMedication: 'Lägg till medicin',
+        noDailyMeds: 'Ingen regelbunden medicinering tillagd än.', perDay: 'dag', delete: 'Ta bort',
+        confirmDelete: 'Ta bort denna medicin?', sinceMedication: 'Sedan start av',
+        medTrendTitle: 'Migrändagar per månad vs. regelbunden medicinering',
+        medTrendNoData: 'Lägg till en regelbunden medicin (fliken Profil) och några poster för att se utvecklingen.',
+        medTrendNotEnough: 'Inte tillräckligt med data än: minst 14 spårade dagar före och efter start behövs.',
+        medTrendBefore: 'Före', medTrendAfter: 'Sedan start', medTrendUnit: 'migrändagar per 30 dagar',
+        medTrendMigraineLabel: 'Migrändagar (per 30 dagar)', trackedDaysWord: 'spårade dagar',
+        medTrendNote: 'Grått = före, orange = startmånaden, grönt = efter. Förändringar syns oftast först efter 1–3 månader, och väder, cykel och stress spelar också in. Se detta som ett underlag för samtalet med din läkare, inte som bevis.'
     }
 }
 
 let currentLang = localStorage.getItem('appLang') || 'en'
 let historyEntries = []
+let dailyMedications = []
+let medTrendChartInstance = null
 
 const freeTextTranslationCache = new Map()
 
@@ -580,6 +612,12 @@ document.querySelector('#app').innerHTML = `
               <option value="no" data-i18n="no">No</option>
             </select>
           </label>
+          <label>
+            <span data-i18n="sinceMedication">Since starting</span>
+            <select id="filterSinceMed">
+              <option value="" data-i18n="any">Any</option>
+            </select>
+          </label>
           <label class="filter-checkbox">
             <input type="checkbox" id="filterNextDay">
             <span data-i18n="alsoShowTheDayAfter">Also show the day after</span>
@@ -658,6 +696,33 @@ document.querySelector('#app').innerHTML = `
           <button type="button" id="profileCancelButton" class="secondary-button" data-i18n="cancel">Cancel</button>
           <p id="profileSaveMessage"></p>
         </form>
+
+        <div class="medication-section">
+          <h3 data-i18n="dailyMedsTitle">Regular medication</h3>
+          <div id="dailyMedList"></div>
+
+          <form id="daily-med-form" class="daily-med-form">
+            <div class="form-grid">
+              <label>
+                <span data-i18n="medicine">Medicine</span>
+                <input type="text" id="dailyMedName" placeholder="Metoprolol Teva" required>
+              </label>
+              <label>
+                <span data-i18n="medDose">Dose per pill</span>
+                <input type="text" id="dailyMedDose" placeholder="e.g. 47.5 mg">
+              </label>
+              <label>
+                <span data-i18n="medPills">Pills per day</span>
+                <input type="number" id="dailyMedPills" min="0" step="0.25" placeholder="1">
+              </label>
+              <label>
+                <span data-i18n="medStartDate">Started on</span>
+                <input type="date" id="dailyMedStart" required>
+              </label>
+            </div>
+            <button class="save-button" type="submit" data-i18n="addMedication">Add medication</button>
+          </form>
+        </div>
       </section>
       <section id="stats-page" class="page">
         <h2 data-i18n="statsTitle">Stats</h2>
@@ -669,6 +734,19 @@ document.querySelector('#app').innerHTML = `
           <div class="chart-container">
             <canvas id="weatherChart"></canvas>
           </div>
+        </div>
+
+        <div class="stats-weather">
+          <h3 data-i18n="medTrendTitle">Migraine days per month vs. regular medication</h3>
+          <label class="med-trend-select">
+            <span data-i18n="medicine">Medicine</span>
+            <select id="medTrendSelect"></select>
+          </label>
+          <p id="medTrendSummary" class="stats-empty"></p>
+          <div class="chart-container">
+            <canvas id="medTrendChart"></canvas>
+          </div>
+          <p class="stats-empty" data-i18n="medTrendNote">Note</p>
         </div>
 
         <div class="stats-medicine">
@@ -836,6 +914,9 @@ async function loadHistory() {
     populateNotesFilter()
     populateSymptomFilter()
     populateMedicineFilter()
+    populateSinceMedicationFilter()
+    renderDailyMedList()
+    renderMedicationTrend()
     renderFilteredHistory()
     renderWeatherChart()
     renderStats()
@@ -988,6 +1069,16 @@ function populateMedicineFilter() {
     select.value = currentValue
 }
 
+function populateSinceMedicationFilter() {
+    const select = document.querySelector('#filterSinceMed')
+    const current = select.value
+
+    select.innerHTML = `<option value="">${t('any')}</option>` +
+        dailyMedications.map(med => `<option value="${med.start_date}">${medLabel(med)} (${med.start_date})</option>`).join('')
+
+    select.value = current
+}
+
 function entryHasSymptom(entry, symptomTerm) {
     if (!entry.other_symptoms) return false
     return entry.other_symptoms.toLowerCase().includes(symptomTerm.toLowerCase())
@@ -1007,6 +1098,7 @@ function applyFilters() {
     const medicineTerm = document.querySelector('#filterMedicine').value
     const medicineHelped = document.querySelector('#filterMedicineHelped').value
     const includeNextDay = document.querySelector('#filterNextDay').checked
+    const sinceDate = document.querySelector('#filterSinceMed').value
 
     if (foodTerm && includeNextDay) {
         renderTermPairs(foodTerm, entryHasFood)
@@ -1023,7 +1115,11 @@ function applyFilters() {
         return
     }
 
-    let filtered = historyEntries
+        let filtered = historyEntries
+
+    if (sinceDate) {
+        filtered = filtered.filter(entry => entry.entry_date >= sinceDate)
+    }
 
     if (minPain !== '') {
         filtered = filtered.filter(entry => entry.pain_level >= parseInt(minPain, 10))
@@ -1350,6 +1446,7 @@ document.querySelector('#filterNotes').addEventListener('change', applyFilters)
 document.querySelector('#filterSymptoms').addEventListener('change', applyFilters)
 document.querySelector('#filterMedicine').addEventListener('change', applyFilters)
 document.querySelector('#filterMedicineHelped').addEventListener('change', applyFilters)
+document.querySelector('#filterSinceMed').addEventListener('change', applyFilters)
 document.querySelector('#filterNextDay').addEventListener('change', applyFilters)
 
 document.querySelector('#clearFiltersButton').addEventListener('click', () => {
@@ -1359,6 +1456,7 @@ document.querySelector('#clearFiltersButton').addEventListener('click', () => {
     document.querySelector('#filterSymptoms').value = ''
     document.querySelector('#filterMedicine').value = ''
     document.querySelector('#filterMedicineHelped').value = ''
+    document.querySelector('#filterSinceMed').value = ''
     document.querySelector('#filterNextDay').checked = false
     renderFilteredHistory()
 })
@@ -1644,6 +1742,120 @@ function renderWeatherChart() {
         }
     })
 }
+
+function summarizePeriod(entries) {
+    if (entries.length === 0) return null
+
+    const migraineDays = entries.filter(e => e.headache_type === 'migraine').length
+
+    return {
+        tracked: entries.length,
+        migrainePer30: migraineDays / entries.length * 30,
+        avgPain: average(entries.map(e => e.pain_level))
+    }
+}
+
+function renderMedicationTrend() {
+    const summary = document.querySelector('#medTrendSummary')
+    const select = document.querySelector('#medTrendSelect')
+
+    if (dailyMedications.length === 0 || historyEntries.length === 0) {
+        select.innerHTML = ''
+        summary.textContent = t('medTrendNoData')
+        if (medTrendChartInstance) {
+            medTrendChartInstance.destroy()
+            medTrendChartInstance = null
+        }
+        return
+    }
+
+    const current = select.value
+    select.innerHTML = dailyMedications
+        .map(med => `<option value="${med.start_date}">${medLabel(med)} (${med.start_date})</option>`)
+        .join('')
+    if (Array.from(select.options).some(o => o.value === current)) select.value = current
+
+    const startDate = select.value
+    const startMonth = startDate.slice(0, 7)
+
+    const byMonth = {}
+    historyEntries.forEach(entry => {
+        const key = entry.entry_date.slice(0, 7)
+        byMonth[key] = byMonth[key] || []
+        byMonth[key].push(entry)
+    })
+
+    const months = Object.keys(byMonth).sort()
+
+    // Normalised to 30 days so months with fewer tracked days don't look better than they are
+    const migrainePer30 = months.map(m => {
+        const list = byMonth[m]
+        const days = list.filter(e => e.headache_type === 'migraine').length
+        return Math.round(days / list.length * 30 * 10) / 10
+    })
+    const avgPain = months.map(m => Math.round(average(byMonth[m].map(e => e.pain_level)) * 10) / 10)
+    const colors = months.map(m => m < startMonth ? '#90a4ae' : (m === startMonth ? '#ffb74d' : '#43a047'))
+
+    const before = summarizePeriod(historyEntries.filter(e => e.entry_date < startDate))
+    const after = summarizePeriod(historyEntries.filter(e => e.entry_date >= startDate))
+
+    if (!before || !after || before.tracked < 14 || after.tracked < 14) {
+        summary.textContent = t('medTrendNotEnough')
+    } else {
+        summary.textContent =
+            `${t('medTrendBefore')}: ${before.migrainePer30.toFixed(1)} ${t('medTrendUnit')}, ${t('statsAvgPain')} ${before.avgPain.toFixed(1)} (${before.tracked} ${t('trackedDaysWord')})  ·  ` +
+            `${t('medTrendAfter')}: ${after.migrainePer30.toFixed(1)} ${t('medTrendUnit')}, ${t('statsAvgPain')} ${after.avgPain.toFixed(1)} (${after.tracked} ${t('trackedDaysWord')})`
+    }
+
+    if (medTrendChartInstance) medTrendChartInstance.destroy()
+
+    medTrendChartInstance = new Chart(document.querySelector('#medTrendChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: t('medTrendMigraineLabel'),
+                    data: migrainePer30,
+                    backgroundColor: colors,
+                    yAxisID: 'y'
+                },
+                {
+                    type: 'line',
+                    label: t('chartPain'),
+                    data: avgPain,
+                    borderColor: '#e53935',
+                    backgroundColor: '#e53935',
+                    yAxisID: 'y1',
+                    tension: 0.2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    beginAtZero: true,
+                    title: { display: true, text: t('medTrendMigraineLabel') }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    min: 0,
+                    max: 10,
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: t('chartPain') }
+                }
+            }
+        }
+    })
+}
+
+document.querySelector('#medTrendSelect').addEventListener('change', renderMedicationTrend)
 
 function medicineTotalsForMonth(entries, year, month) {
     const totals = {}
@@ -1944,6 +2156,86 @@ async function renderYear() {
 
 renderCalendar()
 
+function medLabel(med) {
+    return med.dose ? `${med.name} ${med.dose}` : med.name
+}
+
+async function loadDailyMedications() {
+    const { data, error } = await supabase
+        .from('daily_medications')
+        .select('*')
+        .order('start_date', { ascending: false })
+
+    if (error) {
+        console.error(error)
+        return
+    }
+
+    dailyMedications = data ?? []
+    renderDailyMedList()
+    populateSinceMedicationFilter()
+    renderMedicationTrend()
+}
+
+function renderDailyMedList() {
+    const box = document.querySelector('#dailyMedList')
+
+    if (dailyMedications.length === 0) {
+        box.innerHTML = `<p class="stats-empty">${t('noDailyMeds')}</p>`
+        return
+    }
+
+    box.innerHTML = `
+      <ul class="daily-med-list">
+        ${dailyMedications.map(med => `
+          <li>
+            <span>
+              <strong>${med.name}</strong>${med.dose ? ' · ' + med.dose : ''}${med.pills_per_day != null ? ' · ' + med.pills_per_day + '×/' + t('perDay') : ''}
+              <br><small>${t('medStartDate')} ${med.start_date}</small>
+            </span>
+            <button type="button" class="secondary-button delete-med-button" data-id="${med.id}">${t('delete')}</button>
+          </li>
+        `).join('')}
+      </ul>
+    `
+
+    box.querySelectorAll('.delete-med-button').forEach(button => {
+        button.addEventListener('click', async () => {
+            if (!confirm(t('confirmDelete'))) return
+
+            const { error } = await supabase.from('daily_medications').delete().eq('id', button.dataset.id)
+            if (error) {
+                console.error(error)
+                return
+            }
+            loadDailyMedications()
+        })
+    })
+}
+
+document.querySelector('#daily-med-form').addEventListener('submit', async event => {
+    event.preventDefault()
+
+    const pills = document.querySelector('#dailyMedPills').value
+
+    const record = {
+        name: document.querySelector('#dailyMedName').value.trim(),
+        dose: document.querySelector('#dailyMedDose').value.trim() || null,
+        pills_per_day: pills === '' ? null : parseFloat(pills),
+        start_date: document.querySelector('#dailyMedStart').value
+    }
+
+    const { error } = await supabase.from('daily_medications').insert(record)
+
+    if (error) {
+        console.error(error)
+        return
+    }
+
+    document.querySelector('#daily-med-form').reset()
+    loadDailyMedications()
+})
+
 // Profile management functions
 async function loadProfileData() {
     try {
@@ -2082,6 +2374,7 @@ async function saveProfileData(event) {
 
 // Load profile when page loads
 loadProfileData()
+loadDailyMedications()
 
 // Profile form event listeners
 document.querySelector('#profileEditButton').addEventListener('click', switchToProfileEditMode)
