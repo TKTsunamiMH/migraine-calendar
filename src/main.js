@@ -77,7 +77,8 @@ const translations = {
         medTrendNotEnough: 'Not enough data yet: at least 14 tracked days before and after the start are needed.',
         medTrendBefore: 'Before', medTrendAfter: 'Since start', medTrendUnit: 'migraine days per 30 days',
         medTrendMigraineLabel: 'Migraine days (per 30 days)', trackedDaysWord: 'tracked days',
-        medTrendNote: 'Grey = before, orange = start month, green = after. Changes usually take 1–3 months to show, and weather, cycle and stress also play a role, so treat this as a hint to discuss with your doctor, not proof.'
+        medTrendNote: 'Grey = before, orange = start month, green = after. Changes usually take 1–3 months to show, and weather, cycle and stress also play a role, so treat this as a hint to discuss with your doctor, not proof.',
+        medTrendBeforeAny: 'Before any dose', medEndDate: 'Ended on (leave empty if ongoing)', medEndedWord: 'ended', ongoingWord: 'ongoing'
     },
     de: {
         appTitle: 'Migräne-Kalender',
@@ -151,7 +152,8 @@ const translations = {
         medTrendNotEnough: 'Noch nicht genug Daten: mindestens 14 erfasste Tage vor und nach Beginn werden benötigt.',
         medTrendBefore: 'Davor', medTrendAfter: 'Seit Beginn', medTrendUnit: 'Migränetage pro 30 Tage',
         medTrendMigraineLabel: 'Migränetage (pro 30 Tage)', trackedDaysWord: 'erfasste Tage',
-        medTrendNote: 'Grau = davor, orange = Startmonat, grün = danach. Veränderungen zeigen sich meist erst nach 1–3 Monaten, und Wetter, Zyklus und Stress spielen ebenfalls eine Rolle. Sieh das als Hinweis für das Gespräch mit deinem Arzt, nicht als Beweis.'
+        medTrendNote: 'Grau = davor, orange = Startmonat, grün = danach. Veränderungen zeigen sich meist erst nach 1–3 Monaten, und Wetter, Zyklus und Stress spielen ebenfalls eine Rolle. Sieh das als Hinweis für das Gespräch mit deinem Arzt, nicht als Beweis.',
+        medTrendBeforeAny: 'Vor jeder Dosis', medEndDate: 'Beendet am (leer lassen, falls aktuell)', medEndedWord: 'beendet', ongoingWord: 'laufend'
     },
     sv: {
         appTitle: 'Migränkalender',
@@ -225,7 +227,8 @@ const translations = {
         medTrendNotEnough: 'Inte tillräckligt med data än: minst 14 spårade dagar före och efter start behövs.',
         medTrendBefore: 'Före', medTrendAfter: 'Sedan start', medTrendUnit: 'migrändagar per 30 dagar',
         medTrendMigraineLabel: 'Migrändagar (per 30 dagar)', trackedDaysWord: 'spårade dagar',
-        medTrendNote: 'Grått = före, orange = startmånaden, grönt = efter. Förändringar syns oftast först efter 1–3 månader, och väder, cykel och stress spelar också in. Se detta som ett underlag för samtalet med din läkare, inte som bevis.'
+        medTrendNote: 'Grått = före, orange = startmånaden, grönt = efter. Förändringar syns oftast först efter 1–3 månader, och väder, cykel och stress spelar också in. Se detta som ett underlag för samtalet med din läkare, inte som bevis.',
+        medTrendBeforeAny: 'Före någon dos', medEndDate: 'Avslutad (lämna tomt om pågående)', medEndedWord: 'avslutad', ongoingWord: 'pågående'
     }
 }
 
@@ -719,8 +722,14 @@ document.querySelector('#app').innerHTML = `
                 <span data-i18n="medStartDate">Started on</span>
                 <input type="date" id="dailyMedStart" required>
               </label>
+              <label>
+                <span data-i18n="medEndDate">Ended on (leave empty if ongoing)</span>
+                <input type="date" id="dailyMedEnd">
+              </label>
             </div>
+            <input type="hidden" id="editingMedId" value="">
             <button class="save-button" type="submit" data-i18n="addMedication">Add medication</button>
+            <button type="button" id="cancelMedEditButton" class="secondary-button" style="display:none" data-i18n="cancelEdit">Cancel edit</button>
           </form>
         </div>
       </section>
@@ -1755,6 +1764,36 @@ function summarizePeriod(entries) {
     }
 }
 
+const PERIOD_COLORS = ['#90a4ae', '#ffb74d', '#43a047', '#5c6bc0', '#ec407a', '#26c6da']
+
+function buildDosePeriods(name) {
+    const rows = dailyMedications
+        .filter(med => med.name === name)
+        .sort((a, b) => a.start_date.localeCompare(b.start_date))
+
+    return rows.map((med, index) => {
+        const nextStart = index + 1 < rows.length ? rows[index + 1].start_date : null
+        // An explicit end_date always wins if it's set and earlier than the next dose's start
+        const computedEnd = med.end_date && (!nextStart || med.end_date < nextStart) ? med.end_date : nextStart
+
+        return {
+            label: medLabel(med),
+            startDate: med.start_date,
+            endDate: computedEnd // null = ongoing
+        }
+    })
+}
+
+function periodForDate(periods, date) {
+    // Search from the last period backward so the most recent matching one wins
+    for (let i = periods.length - 1; i >= 0; i--) {
+        if (date >= periods[i].startDate && (periods[i].endDate === null || date < periods[i].endDate)) {
+            return i
+        }
+    }
+    return -1 // before the first known dose
+}
+
 function renderMedicationTrend() {
     const summary = document.querySelector('#medTrendSummary')
     const select = document.querySelector('#medTrendSelect')
@@ -1769,14 +1808,13 @@ function renderMedicationTrend() {
         return
     }
 
+    const names = Array.from(new Set(dailyMedications.map(med => med.name)))
     const current = select.value
-    select.innerHTML = dailyMedications
-        .map(med => `<option value="${med.start_date}">${medLabel(med)} (${med.start_date})</option>`)
-        .join('')
-    if (Array.from(select.options).some(o => o.value === current)) select.value = current
+    select.innerHTML = names.map(name => `<option value="${name}">${name}</option>`).join('')
+    if (names.includes(current)) select.value = current
 
-    const startDate = select.value
-    const startMonth = startDate.slice(0, 7)
+    const selectedName = select.value
+    const periods = buildDosePeriods(selectedName)
 
     const byMonth = {}
     historyEntries.forEach(entry => {
@@ -1787,25 +1825,35 @@ function renderMedicationTrend() {
 
     const months = Object.keys(byMonth).sort()
 
-    // Normalised to 30 days so months with fewer tracked days don't look better than they are
     const migrainePer30 = months.map(m => {
         const list = byMonth[m]
         const days = list.filter(e => e.headache_type === 'migraine').length
         return Math.round(days / list.length * 30 * 10) / 10
     })
     const avgPain = months.map(m => Math.round(average(byMonth[m].map(e => e.pain_level)) * 10) / 10)
-    const colors = months.map(m => m < startMonth ? '#90a4ae' : (m === startMonth ? '#ffb74d' : '#43a047'))
 
-    const before = summarizePeriod(historyEntries.filter(e => e.entry_date < startDate))
-    const after = summarizePeriod(historyEntries.filter(e => e.entry_date >= startDate))
+    const colors = months.map(m => {
+        const idx = periodForDate(periods, m + '-15') // mid-month as a representative date
+        return idx === -1 ? '#90a4ae' : PERIOD_COLORS[idx % PERIOD_COLORS.length]
+    })
 
-    if (!before || !after || before.tracked < 14 || after.tracked < 14) {
-        summary.textContent = t('medTrendNotEnough')
-    } else {
-        summary.textContent =
-            `${t('medTrendBefore')}: ${before.migrainePer30.toFixed(1)} ${t('medTrendUnit')}, ${t('statsAvgPain')} ${before.avgPain.toFixed(1)} (${before.tracked} ${t('trackedDaysWord')})  ·  ` +
-            `${t('medTrendAfter')}: ${after.migrainePer30.toFixed(1)} ${t('medTrendUnit')}, ${t('statsAvgPain')} ${after.avgPain.toFixed(1)} (${after.tracked} ${t('trackedDaysWord')})`
-    }
+    // Per-period stats, "before the first dose" included as its own bucket
+    const buckets = [{ label: t('medTrendBeforeAny'), entries: [] }, ...periods.map(p => ({ label: p.label, entries: [] }))]
+
+    historyEntries.forEach(entry => {
+        const idx = periodForDate(periods, entry.entry_date)
+        buckets[idx + 1].entries.push(entry)
+    })
+
+    const summaryParts = buckets
+        .map(bucket => {
+            const stat = summarizePeriod(bucket.entries)
+            if (!stat || stat.tracked < 14) return null
+            return `${bucket.label}: ${stat.migrainePer30.toFixed(1)} ${t('medTrendUnit')}, ${t('statsAvgPain')} ${stat.avgPain.toFixed(1)} (${stat.tracked} ${t('trackedDaysWord')})`
+        })
+        .filter(Boolean)
+
+    summary.textContent = summaryParts.length >= 2 ? summaryParts.join('  ·  ') : t('medTrendNotEnough')
 
     if (medTrendChartInstance) medTrendChartInstance.destroy()
 
@@ -2191,9 +2239,12 @@ function renderDailyMedList() {
           <li>
             <span>
               <strong>${med.name}</strong>${med.dose ? ' · ' + med.dose : ''}${med.pills_per_day != null ? ' · ' + med.pills_per_day + '×/' + t('perDay') : ''}
-              <br><small>${t('medStartDate')} ${med.start_date}</small>
+              <br><small>${t('medStartDate')} ${med.start_date}${med.end_date ? ' — ' + t('medEndedWord') + ' ' + med.end_date : ' — ' + t('ongoingWord')}</small>
             </span>
-            <button type="button" class="secondary-button delete-med-button" data-id="${med.id}">${t('delete')}</button>
+            <span class="daily-med-actions">
+              <button type="button" class="secondary-button edit-med-button" data-id="${med.id}">${t('edit')}</button>
+              <button type="button" class="secondary-button delete-med-button" data-id="${med.id}">${t('delete')}</button>
+            </span>
           </li>
         `).join('')}
       </ul>
@@ -2211,21 +2262,49 @@ function renderDailyMedList() {
             loadDailyMedications()
         })
     })
+
+    box.querySelectorAll('.edit-med-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const med = dailyMedications.find(m => m.id === button.dataset.id)
+            if (!med) return
+
+            document.querySelector('#editingMedId').value = med.id
+            document.querySelector('#dailyMedName').value = med.name
+            document.querySelector('#dailyMedDose').value = med.dose ?? ''
+            document.querySelector('#dailyMedPills').value = med.pills_per_day ?? ''
+            document.querySelector('#dailyMedStart').value = med.start_date
+            document.querySelector('#dailyMedEnd').value = med.end_date ?? ''
+            document.querySelector('#cancelMedEditButton').style.display = 'inline-block'
+
+            document.querySelector('#daily-med-form').scrollIntoView({ behavior: 'smooth' })
+        })
+    })
 }
+
+document.querySelector('#cancelMedEditButton').addEventListener('click', () => {
+    document.querySelector('#daily-med-form').reset()
+    document.querySelector('#editingMedId').value = ''
+    document.querySelector('#cancelMedEditButton').style.display = 'none'
+})
 
 document.querySelector('#daily-med-form').addEventListener('submit', async event => {
     event.preventDefault()
 
     const pills = document.querySelector('#dailyMedPills').value
+    const endDate = document.querySelector('#dailyMedEnd').value
+    const editingId = document.querySelector('#editingMedId').value
 
     const record = {
         name: document.querySelector('#dailyMedName').value.trim(),
         dose: document.querySelector('#dailyMedDose').value.trim() || null,
         pills_per_day: pills === '' ? null : parseFloat(pills),
-        start_date: document.querySelector('#dailyMedStart').value
+        start_date: document.querySelector('#dailyMedStart').value,
+        end_date: endDate || null
     }
 
-    const { error } = await supabase.from('daily_medications').insert(record)
+    const { error } = editingId
+        ? await supabase.from('daily_medications').update(record).eq('id', editingId)
+        : await supabase.from('daily_medications').insert(record)
 
     if (error) {
         console.error(error)
@@ -2233,6 +2312,8 @@ document.querySelector('#daily-med-form').addEventListener('submit', async event
     }
 
     document.querySelector('#daily-med-form').reset()
+    document.querySelector('#editingMedId').value = ''
+    document.querySelector('#cancelMedEditButton').style.display = 'none'
     loadDailyMedications()
 })
 
