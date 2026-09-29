@@ -715,3 +715,8 @@ textarea {
     max-width: 360px;
     margin-bottom: 12px;
 }
+.daily-med-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
