@@ -78,7 +78,10 @@ const translations = {
         medTrendBefore: 'Before', medTrendAfter: 'Since start', medTrendUnit: 'migraine days per 30 days',
         medTrendMigraineLabel: 'Migraine days (per 30 days)', trackedDaysWord: 'tracked days',
         medTrendNote: 'Grey = before, orange = start month, green = after. Changes usually take 1–3 months to show, and weather, cycle and stress also play a role, so treat this as a hint to discuss with your doctor, not proof.',
-        medTrendBeforeAny: 'Before any dose', medEndDate: 'Ended on (leave empty if ongoing)', medEndedWord: 'ended', ongoingWord: 'ongoing'
+        medTrendBeforeAny: 'Before any dose', medEndDate: 'Ended on (leave empty if ongoing)', medEndedWord: 'ended', ongoingWord: 'ongoing',
+        cycleTitle: 'Cycle-aware view', cycleNotEnough: 'Not enough tracked cycles yet — at least 2 full cycles are needed.',
+        cycleBasedOn: 'Based on', cycleWord: 'cycle', cyclesWord: 'cycles', cycleDayAxis: 'Cycle day',
+        cycleNote: 'Red bars mark days you logged as period days, averaged across your tracked cycles. Cycle day 1 is the first day of each period. Short or irregular cycles can shift this, so treat it as a pattern to discuss rather than a fixed rule.'
     },
     de: {
         appTitle: 'Migräne-Kalender',
@@ -153,7 +156,10 @@ const translations = {
         medTrendBefore: 'Davor', medTrendAfter: 'Seit Beginn', medTrendUnit: 'Migränetage pro 30 Tage',
         medTrendMigraineLabel: 'Migränetage (pro 30 Tage)', trackedDaysWord: 'erfasste Tage',
         medTrendNote: 'Grau = davor, orange = Startmonat, grün = danach. Veränderungen zeigen sich meist erst nach 1–3 Monaten, und Wetter, Zyklus und Stress spielen ebenfalls eine Rolle. Sieh das als Hinweis für das Gespräch mit deinem Arzt, nicht als Beweis.',
-        medTrendBeforeAny: 'Vor jeder Dosis', medEndDate: 'Beendet am (leer lassen, falls aktuell)', medEndedWord: 'beendet', ongoingWord: 'laufend'
+        medTrendBeforeAny: 'Vor jeder Dosis', medEndDate: 'Beendet am (leer lassen, falls aktuell)', medEndedWord: 'beendet', ongoingWord: 'laufend',
+        cycleTitle: 'Zyklusansicht', cycleNotEnough: 'Noch nicht genug erfasste Zyklen — mindestens 2 vollständige Zyklen werden benötigt.',
+        cycleBasedOn: 'Basierend auf', cycleWord: 'Zyklus', cyclesWord: 'Zyklen', cycleDayAxis: 'Zyklustag',
+        cycleNote: 'Rote Balken markieren als Periodentage erfasste Tage, gemittelt über deine erfassten Zyklen. Zyklustag 1 ist der erste Tag jeder Periode. Kurze oder unregelmäßige Zyklen können dies verschieben — sieh es als Muster für das Gespräch mit deinem Arzt, nicht als feste Regel.'
     },
     sv: {
         appTitle: 'Migränkalender',
@@ -228,7 +234,10 @@ const translations = {
         medTrendBefore: 'Före', medTrendAfter: 'Sedan start', medTrendUnit: 'migrändagar per 30 dagar',
         medTrendMigraineLabel: 'Migrändagar (per 30 dagar)', trackedDaysWord: 'spårade dagar',
         medTrendNote: 'Grått = före, orange = startmånaden, grönt = efter. Förändringar syns oftast först efter 1–3 månader, och väder, cykel och stress spelar också in. Se detta som ett underlag för samtalet med din läkare, inte som bevis.',
-        medTrendBeforeAny: 'Före någon dos', medEndDate: 'Avslutad (lämna tomt om pågående)', medEndedWord: 'avslutad', ongoingWord: 'pågående'
+        medTrendBeforeAny: 'Före någon dos', medEndDate: 'Avslutad (lämna tomt om pågående)', medEndedWord: 'avslutad', ongoingWord: 'pågående',
+        cycleTitle: 'Cykelvy', cycleNotEnough: 'Inte tillräckligt med spårade cykler än — minst 2 fullständiga cykler behövs.',
+        cycleBasedOn: 'Baserat på', cycleWord: 'cykel', cyclesWord: 'cykler', cycleDayAxis: 'Cykeldag',
+        cycleNote: 'Röda staplar markerar dagar du loggat som mensdagar, i genomsnitt över dina spårade cykler. Cykeldag 1 är den första dagen i varje mens. Korta eller oregelbundna cykler kan förskjuta detta — se det som ett mönster att diskutera, inte en fast regel.'
     }
 }
 
@@ -758,6 +767,15 @@ document.querySelector('#app').innerHTML = `
           <p class="stats-empty" data-i18n="medTrendNote">Note</p>
         </div>
 
+        <div class="stats-weather">
+          <h3 data-i18n="cycleTitle">Cycle-aware view</h3>
+          <p id="cycleSummary" class="stats-empty"></p>
+          <div class="chart-container">
+            <canvas id="cycleChart"></canvas>
+          </div>
+          <p class="stats-empty" data-i18n="cycleNote">Note</p>
+        </div>
+
         <div class="stats-medicine">
           <h3 data-i18n="statsMedicineTitle">Medicine usage</h3>
           <div class="stats-medicine-columns">
@@ -928,6 +946,7 @@ async function loadHistory() {
     renderMedicationTrend()
     renderFilteredHistory()
     renderWeatherChart()
+    renderCycleChart()
     renderStats()
 }
 
@@ -1950,6 +1969,104 @@ function renderMedicineStats() {
 
     renderList('statsMedicineThisMonth', thisMonthTotals)
     renderList('statsMedicineLastMonth', lastMonthTotals)
+}
+
+let cycleChartInstance = null
+
+function computeCycleDays(entries) {
+    const periodDates = entries
+        .filter(e => e.had_period === true)
+        .map(e => e.entry_date)
+        .sort()
+
+    if (periodDates.length === 0) return { starts: [], cycleDayByDate: {} }
+
+    const starts = []
+    periodDates.forEach(date => {
+        const prev = shiftDate(date, -1)
+        const prev2 = shiftDate(date, -2)
+        const prev3 = shiftDate(date, -3)
+        const isStart = !periodDates.includes(prev) && !periodDates.includes(prev2) && !periodDates.includes(prev3)
+        if (isStart) starts.push(date)
+    })
+
+    const cycleDayByDate = {}
+    const sortedEntries = [...entries].sort((a, b) => a.entry_date.localeCompare(b.entry_date))
+
+    sortedEntries.forEach(entry => {
+        let lastStart = null
+        for (const start of starts) {
+            if (start <= entry.entry_date) lastStart = start
+            else break
+        }
+        if (!lastStart) return
+
+        const dayDiff = Math.round((new Date(entry.entry_date) - new Date(lastStart)) / (1000 * 60 * 60 * 24)) + 1
+        if (dayDiff >= 1 && dayDiff <= 40) {
+            cycleDayByDate[entry.entry_date] = dayDiff
+        }
+    })
+
+    return { starts, cycleDayByDate }
+}
+
+function renderCycleChart() {
+    const summary = document.querySelector('#cycleSummary')
+    const { starts, cycleDayByDate } = computeCycleDays(historyEntries)
+
+    if (starts.length < 2) {
+        summary.textContent = t('cycleNotEnough')
+        if (cycleChartInstance) {
+            cycleChartInstance.destroy()
+            cycleChartInstance = null
+        }
+        return
+    }
+
+    const painByCycleDay = {}
+    const periodDayFlag = {}
+
+    historyEntries.forEach(entry => {
+        const day = cycleDayByDate[entry.entry_date]
+        if (!day) return
+        painByCycleDay[day] = painByCycleDay[day] || []
+        painByCycleDay[day].push(entry.pain_level)
+        if (entry.had_period) periodDayFlag[day] = true
+    })
+
+    const maxDay = Math.max(...Object.keys(painByCycleDay).map(Number))
+    const days = Array.from({ length: Math.min(maxDay, 35) }, (_, i) => i + 1)
+
+    const avgByDay = days.map(day => painByCycleDay[day] ? average(painByCycleDay[day]) : null)
+    const colors = days.map(day => periodDayFlag[day] ? '#e57373' : '#90a4ae')
+
+    const cycleCount = starts.length - 1
+    summary.textContent = `${t('cycleBasedOn')} ${cycleCount} ${cycleCount === 1 ? t('cycleWord') : t('cyclesWord')}`
+
+    if (cycleChartInstance) cycleChartInstance.destroy()
+
+    cycleChartInstance = new Chart(document.querySelector('#cycleChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: days,
+            datasets: [{
+                label: t('chartPain'),
+                data: avgByDay,
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: t('cycleDayAxis') } },
+                y: { beginAtZero: true, max: 10, title: { display: true, text: t('chartPain') } }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    })
 }
 
 function renderStats() {
