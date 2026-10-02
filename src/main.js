@@ -39,6 +39,12 @@ const translations = {
         pain: 'pain', noEntryForDay: 'No entry for this day.',
         wentForWalk: 'Went for a walk?', cardWalk: 'Walk',
         statsMedicineTitle: 'Medicine usage', statsThisMonth: 'This month', statsLastMonth: 'Last month',
+        medOveruseTitle: 'Medication days this month', medOveruseNoData: 'Not enough data yet.',
+        medOveruseThreshold: 'threshold', medOveruseOK: 'OK', medOveruseApproaching: 'Approaching',
+        medOveruseOver: 'Over threshold', medOveruseWarning: 'This is a hint to discuss with your doctor, not a diagnosis.',
+        medOveruseTriptan: 'Triptans/ergots/combination analgesics', medOveruseSimple: 'Simple analgesics',
+        medOveruseUnclassified: 'Unclassified', medOveruseDays: 'days', medOveruse6mChart: 'Medication days per month (last 6 months)',
+        medOveruseBadge: 'This is your {{count}} {{category}} day this month',
         date: 'Date', location: 'Location', breakfast: 'Breakfast', lunch: 'Lunch', otherFood: 'Other food',
         waterLiters: 'Water (liters)', hoursOfSleep: 'Hours of sleep', choose: 'Choose',
         period: 'Period?', notTracked: 'Not tracked', headacheType: 'Headache type',
@@ -117,6 +123,12 @@ const translations = {
         pain: 'Schmerz', noEntryForDay: 'Kein Eintrag für diesen Tag.',
         wentForWalk: 'Spaziergang gemacht?', cardWalk: 'Spaziergang',
         statsMedicineTitle: 'Medikamenteneinnahme', statsThisMonth: 'Diesen Monat', statsLastMonth: 'Letzten Monat',
+        medOveruseTitle: 'Medikamententage diesen Monat', medOveruseNoData: 'Noch nicht genug Daten.',
+        medOveruseThreshold: 'Schwellenwert', medOveruseOK: 'OK', medOveruseApproaching: 'Näherung',
+        medOveruseOver: 'Über Schwellenwert', medOveruseWarning: 'Das ist ein Hinweis für das Gespräch mit deinem Arzt, keine Diagnose.',
+        medOveruseTriptan: 'Triptane/Ergotamine/Kombinationsanalgetika', medOveruseSimple: 'Einfache Analgetika',
+        medOveruseUnclassified: 'Nicht klassifiziert', medOveruseDays: 'Tage', medOveruse6mChart: 'Medikamententage pro Monat (letzte 6 Monate)',
+        medOveruseBadge: 'Dies ist dein {{count}}. {{category}}-Tag diesen Monat',
         date: 'Datum', location: 'Ort', breakfast: 'Frühstück', lunch: 'Mittagessen', otherFood: 'Sonstiges Essen',
         waterLiters: 'Wasser (Liter)', hoursOfSleep: 'Schlafstunden', choose: 'Auswählen',
         period: 'Periode?', notTracked: 'Nicht erfasst', headacheType: 'Kopfschmerztyp',
@@ -195,6 +207,12 @@ const translations = {
         pain: 'smärta', noEntryForDay: 'Ingen post för denna dag.',
         wentForWalk: 'Var du ute och gick?', cardWalk: 'Promenad',
         statsMedicineTitle: 'Medicinanvändning', statsThisMonth: 'Denna månad', statsLastMonth: 'Förra månaden',
+        medOveruseTitle: 'Medicindagar denna månad', medOveruseNoData: 'Inte tillräckligt med data än.',
+        medOveruseThreshold: 'gränsvärde', medOveruseOK: 'OK', medOveruseApproaching: 'Närmande sig',
+        medOveruseOver: 'Över gränsvärde', medOveruseWarning: 'Det här är ett underlag för diskussionen med din läkare, inte en diagnos.',
+        medOveruseTriptan: 'Triptaner/ergotaminer/kombinationsanalgetika', medOveruseSimple: 'Enkla analgetika',
+        medOveruseUnclassified: 'Oklassificerad', medOveruseDays: 'dagar', medOveruse6mChart: 'Medicindagar per månad (senaste 6 månaderna)',
+        medOveruseBadge: 'Det här är din {{count}}:e {{category}}-dag denna månad',
         date: 'Datum', location: 'Plats', breakfast: 'Frukost', lunch: 'Lunch', otherFood: 'Annan mat',
         waterLiters: 'Vatten (liter)', hoursOfSleep: 'Sömntimmar', choose: 'Välj',
         period: 'Mens?', notTracked: 'Ej spårat', headacheType: 'Typ av huvudvärk',
@@ -245,6 +263,18 @@ let currentLang = localStorage.getItem('appLang') || 'en'
 let historyEntries = []
 let dailyMedications = []
 let medTrendChartInstance = null
+let medOveruseChartInstance = null
+
+// Medication overuse tracking: keywords for classifying medicines
+const MEDICINE_KEYWORDS = {
+    triptans: ['sumatriptan', 'rizatriptan', 'zolmitriptan', 'eletriptan', 'naratriptan', 'almotriptan', 'frovatriptan', 'ergotamine', 'ergot', 'imigran', 'maxalt', 'zomig', 'relpax', 'amerge', 'frova', 'cafergot', 'ergomar', 'migergot'],
+    simpleAnalgesics: ['ibuprofen', 'naproxen', 'diclofenac', 'paracetamol', 'acetaminophen', 'aspirin', 'asa', 'advil', 'nurofen', 'brufen', 'naproxen', 'voltaren', 'dynacirc', 'tylenol', 'excedrin', 'bayer']
+}
+
+const MED_OVERUSE_THRESHOLDS = {
+    triptans: 10,
+    simpleAnalgesics: 15
+}
 
 const freeTextTranslationCache = new Map()
 
@@ -790,6 +820,11 @@ document.querySelector('#app').innerHTML = `
           </div>
         </div>
 
+        <div class="stats-medicine">
+          <h3 data-i18n="medOveruseTitle">Medication days this month</h3>
+          <div id="medOveruseSection"></div>
+        </div>
+
         <div class="stats-triggers">
           <div class="stats-trigger-column">
             <h3 data-i18n="statsFoodBeforeTitle">Top foods before high-pain days</h3>
@@ -896,7 +931,56 @@ document.querySelector('#migraine-form').addEventListener('submit', async event 
     editingEntryId = null
     loadHistory()
     renderCalendar()
+    
+    // Show medication overuse badge if applicable
+    if (entry.medicine && !isMedicineEmpty(entry.medicine)) {
+        displayMedicationOveruseBadge(entry)
+    }
 })
+
+function displayMedicationOveruseBadge(entry) {
+    const entryDate = entry.entry_date
+    const d = new Date(entryDate)
+    const year = d.getFullYear()
+    const month = d.getMonth()
+    
+    const excludedMeds = getExcludedMedicineNames(dailyMedications)
+    const monthData = getMedicationDaysForMonth(historyEntries, year, month, excludedMeds)
+    
+    // Find which category this entry's medication belongs to
+    let relevantCategory = null
+    let relevantDays = 0
+    
+    parseMedicineEntries(entry.medicine).forEach(({ name }) => {
+        if (!isMedicineEmpty(name) && !excludedMeds.has(name.toLowerCase())) {
+            const category = classifyMedicine(name)
+            if (category !== 'unclassified') {
+                relevantCategory = category
+                relevantDays = monthData[category]
+            }
+        }
+    })
+    
+    if (!relevantCategory) return
+    
+    const state = getMedicationOveruseState(relevantDays, relevantCategory)
+    if (state === 'ok') return
+    
+    const categoryLabel = relevantCategory === 'triptans' ? t('medOveruseTriptan') : t('medOveruseSimple')
+    const badgeText = t('medOveruseBadge')
+        .replace('{{count}}', relevantDays)
+        .replace('{{category}}', categoryLabel)
+    
+    const badge = document.createElement('div')
+    badge.className = `med-badge med-badge-${state}`
+    badge.innerHTML = `<strong>${badgeText}</strong> ${state === 'over' ? '⚠️' : '⏰'}`
+    
+    const saveMessage = document.querySelector('#saveMessage')
+    if (saveMessage) {
+        saveMessage.parentNode.insertBefore(badge, saveMessage.nextSibling)
+        setTimeout(() => badge.remove(), 5000)
+    }
+}
 
 document.querySelector('#logoutButton').addEventListener('click', async () => {
     await supabase.auth.signOut()
@@ -1073,6 +1157,69 @@ function extractMedicineNames(entries) {
 
 function entryHasMedicine(entry, medicineName) {
     return parseMedicineEntries(entry.medicine).some(({ name }) => name.toLowerCase() === medicineName.toLowerCase())
+}
+
+// Medication overuse tracking functions
+function isMedicineEmpty(text) {
+    if (!text) return true
+    const trimmed = text.trim().toLowerCase()
+    return trimmed === '' || trimmed === 'none' || trimmed === 'keine' || trimmed === '-' || trimmed === 'n/a' || trimmed === 'not applicable'
+}
+
+function classifyMedicine(medicineName) {
+    const lower = medicineName.toLowerCase()
+    
+    for (const keyword of MEDICINE_KEYWORDS.triptans) {
+        if (lower.includes(keyword)) return 'triptans'
+    }
+    
+    for (const keyword of MEDICINE_KEYWORDS.simpleAnalgesics) {
+        if (lower.includes(keyword)) return 'simpleAnalgesics'
+    }
+    
+    return 'unclassified'
+}
+
+function getExcludedMedicineNames(dailyMeds) {
+    return new Set(dailyMeds.map(m => m.name.toLowerCase()))
+}
+
+function getMedicationDaysForMonth(entries, year, month, excludedMeds = new Set()) {
+    const days = {
+        triptans: new Set(),
+        simpleAnalgesics: new Set(),
+        unclassified: new Set()
+    }
+    
+    entries
+        .filter(entry => {
+            const d = new Date(entry.entry_date)
+            return d.getFullYear() === year && d.getMonth() === month && entry.medicine
+        })
+        .forEach(entry => {
+            parseMedicineEntries(entry.medicine).forEach(({ name }) => {
+                if (isMedicineEmpty(name)) return
+                if (excludedMeds.has(name.toLowerCase())) return
+                
+                const category = classifyMedicine(name)
+                days[category].add(entry.entry_date)
+            })
+        })
+    
+    return {
+        triptans: days.triptans.size,
+        simpleAnalgesics: days.simpleAnalgesics.size,
+        unclassified: days.unclassified.size
+    }
+}
+
+function getMedicationOveruseState(days, category) {
+    const threshold = MED_OVERUSE_THRESHOLDS[category] || Infinity
+    const approachingThreshold = Math.ceil(threshold * 0.8)
+    
+    if (days >= threshold) return 'over'
+    if (days >= approachingThreshold) return 'approaching'
+    return 'ok'
 }
 
 function populateSymptomFilter() {
@@ -1971,6 +2118,149 @@ function renderMedicineStats() {
     renderList('statsMedicineLastMonth', lastMonthTotals)
 }
 
+function renderMedicationOveruse() {
+    const container = document.querySelector('#medOveruseSection')
+    if (!container) return
+    
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth()
+    
+    // Get excluded daily medications
+    const excludedMeds = getExcludedMedicineNames(dailyMedications)
+    
+    // Get medication days for this month and last month
+    const thisMonthData = getMedicationDaysForMonth(historyEntries, year, month, excludedMeds)
+    const lastMonthDate = new Date(year, month - 1, 1)
+    const lastMonthData = getMedicationDaysForMonth(historyEntries, lastMonthDate.getFullYear(), lastMonthDate.getMonth(), excludedMeds)
+    
+    // Check if we have any data
+    const hasData = Object.values(thisMonthData).some(v => v > 0) || Object.values(lastMonthData).some(v => v > 0)
+    
+    if (!hasData) {
+        container.innerHTML = `<p class="stats-empty">${t('medOveruseNoData')}</p>`
+        return
+    }
+    
+    const categories = ['triptans', 'simpleAnalgesics', 'unclassified']
+    const categoryLabels = {
+        triptans: t('medOveruseTriptan'),
+        simpleAnalgesics: t('medOveruseSimple'),
+        unclassified: t('medOveruseUnclassified')
+    }
+    
+    const categoryRows = categories.map(cat => {
+        const days = thisMonthData[cat]
+        const threshold = MED_OVERUSE_THRESHOLDS[cat] || Infinity
+        const state = getMedicationOveruseState(days, cat)
+        const stateLabel = state === 'ok' ? t('medOveruseOK') : (state === 'approaching' ? t('medOveruseApproaching') : t('medOveruseOver'))
+        const percentage = Math.min(100, (days / threshold) * 100)
+        const lastMonthDays = lastMonthData[cat]
+        const diff = days - lastMonthDays
+        const diffText = diff > 0 ? `+${diff}` : (diff < 0 ? `${diff}` : '–')
+        
+        return `
+          <div class="med-category-row">
+            <div class="med-category-header">
+              <div>
+                <strong>${categoryLabels[cat]}</strong>
+                <div class="med-category-status med-status-${state}">${stateLabel} · ${days} ${t('medOveruseDays')} / ${threshold}</div>
+              </div>
+              <div class="med-category-comparison">
+                <small>${t('statsLastMonth')}: ${lastMonthDays}</small>
+                <small class="med-diff">${diffText}</small>
+              </div>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar med-progress-${state}" style="width: ${percentage}%"></div>
+            </div>
+            ${state !== 'ok' ? `<p class="med-warning-text">${t('medOveruseWarning')}</p>` : ''}
+          </div>
+        `
+    }).join('')
+    
+    container.innerHTML = `
+      <div class="med-overuse-content">
+        ${categoryRows}
+        <div class="chart-container med-overuse-chart">
+          <canvas id="medOveruseChart"></canvas>
+        </div>
+      </div>
+    `
+    
+    // Render 6-month chart
+    renderMedicationOveruseChart(year, month, excludedMeds)
+}
+
+function renderMedicationOveruseChart(year, month, excludedMeds) {
+    // Get data for last 6 months
+    const months = []
+    const tripCounts = []
+    const simpleCounts = []
+    const unclassifiedCounts = []
+    
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date(year, month - i, 1)
+        const m = d.getMonth()
+        const y = d.getFullYear()
+        months.push(new Date(y, m, 1).toLocaleDateString(currentLang, { month: 'short', year: '2-digit' }))
+        
+        const data = getMedicationDaysForMonth(historyEntries, y, m, excludedMeds)
+        tripCounts.push(data.triptans)
+        simpleCounts.push(data.simpleAnalgesics)
+        unclassifiedCounts.push(data.unclassified)
+    }
+    
+    const ctx = document.querySelector('#medOveruseChart')
+    if (!ctx) return
+    
+    if (medOveruseChartInstance) medOveruseChartInstance.destroy()
+    
+    const tripThreshold = MED_OVERUSE_THRESHOLDS.triptans
+    const simpleThreshold = MED_OVERUSE_THRESHOLDS.simpleAnalgesics
+    
+    medOveruseChartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: t('medOveruseTriptan'),
+                    data: tripCounts,
+                    backgroundColor: '#42a5f5',
+                    borderColor: '#1976d2',
+                    borderWidth: 1
+                },
+                {
+                    label: t('medOveruseSimple'),
+                    data: simpleCounts,
+                    backgroundColor: '#66bb6a',
+                    borderColor: '#388e3c',
+                    borderWidth: 1
+                },
+                {
+                    label: t('medOveruseUnclassified'),
+                    data: unclassifiedCounts,
+                    backgroundColor: '#ffa726',
+                    borderColor: '#f57c00',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: false },
+                y: { beginAtZero: true, max: Math.max(tripThreshold, simpleThreshold) + 5 }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    })
+}
+
 let cycleChartInstance = null
 
 function computeCycleDays(entries) {
@@ -2119,6 +2409,7 @@ function renderStats() {
     renderTriggerList('statsSymptomTriggers', symptomTriggers)
 
     renderMedicineStats()
+    renderMedicationOveruse()
 }
 
 function painToColor(pain) {

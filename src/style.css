@@ -650,6 +650,199 @@ textarea {
     color: var(--text-muted);
 }
 
+/* Medication overuse styles */
+.med-overuse-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.med-category-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: var(--input-bg);
+    border-radius: 8px;
+}
+
+.med-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.med-category-header strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.med-category-status {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.med-status-ok {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.med-status-approaching {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.med-status-over {
+    background: #ffebee;
+    color: #c62828;
+}
+
+body.dark-mode .med-status-ok {
+    background: #1b5e20;
+    color: #81c784;
+}
+
+body.dark-mode .med-status-approaching {
+    background: #e65100;
+    color: #ffe0b2;
+}
+
+body.dark-mode .med-status-over {
+    background: #b71c1c;
+    color: #ef9a9a;
+}
+
+.med-category-comparison {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.med-diff {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 24px;
+    background: var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+}
+
+.med-progress-ok {
+    background: #66bb6a;
+}
+
+.med-progress-approaching {
+    background: #ffa726;
+}
+
+.med-progress-over {
+    background: #ef5350;
+}
+
+body.dark-mode .med-progress-ok {
+    background: #43a047;
+}
+
+body.dark-mode .med-progress-approaching {
+    background: #fb8c00;
+}
+
+body.dark-mode .med-progress-over {
+    background: #e53935;
+}
+
+.med-warning-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0;
+    padding: 0;
+}
+
+.med-overuse-chart {
+    margin-top: 20px;
+}
+
+.med-badge {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.med-badge-approaching {
+    background: #fff3e0;
+    color: #e65100;
+    border-left: 4px solid #ffa726;
+}
+
+.med-badge-over {
+    background: #ffebee;
+    color: #c62828;
+    border-left: 4px solid #ef5350;
+}
+
+body.dark-mode .med-badge-approaching {
+    background: #e65100;
+    color: #ffe0b2;
+    border-left-color: #ffb74d;
+}
+
+body.dark-mode .med-badge-over {
+    background: #b71c1c;
+    color: #ef9a9a;
+    border-left-color: #e57373;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 650px) {
+    .med-category-header {
+        flex-direction: column;
+    }
+
+    .med-category-comparison {
+        align-items: flex-start;
+    }
+}
+
 @media print {
     .header,
     .nav,
