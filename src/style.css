@@ -526,6 +526,19 @@ textarea {
     .stats-medicine-columns {
         grid-template-columns: 1fr;
     }
+
+    .comparison-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .comparison-counts {
+        text-align: left;
+    }
+
+    .comparison-bars {
+        width: 100%;
+    }
 }
 
 @media (max-width: 900px) {
@@ -607,6 +620,101 @@ textarea {
 .stats-empty {
     color: var(--text-muted);
     font-style: italic;
+}
+
+.stats-data-count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 8px 0;
+}
+
+.stats-trigger-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 12px 0 0 0;
+    line-height: 1.4;
+}
+
+.trigger-comparison-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.trigger-comparison-item:last-child {
+    border-bottom: none;
+}
+
+.trigger-comparison-item.above-baseline {
+    background: none;
+}
+
+.trigger-comparison-item.below-baseline {
+    opacity: 0.75;
+}
+
+.comparison-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.trigger-item-name {
+    flex: 1;
+    min-width: 120px;
+    font-weight: 500;
+}
+
+.comparison-counts {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.comparison-bars {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    height: 24px;
+    background: var(--input-bg);
+    border-radius: 4px;
+    padding: 4px;
+    min-width: 0;
+}
+
+.trigger-bar {
+    background: #ff6b6b;
+    border-radius: 3px;
+    min-height: 16px;
+    min-width: 8px;
+    transition: flex-basis 0.3s ease;
+}
+
+body.dark-mode .trigger-bar {
+    background: #ff7875;
+}
+
+.baseline-bar {
+    background: #bdbdbd;
+    border-radius: 3px;
+    min-height: 16px;
+    min-width: 8px;
+    transition: flex-basis 0.3s ease;
+}
+
+body.dark-mode .baseline-bar {
+    background: #757575;
+}
+
+.trigger-comparison-item.above-baseline .trigger-bar {
+    background: #ffa726;
+}
+
+body.dark-mode .trigger-comparison-item.above-baseline .trigger-bar {
+    background: #ffb74d;
 }
 
 .stats-weather {

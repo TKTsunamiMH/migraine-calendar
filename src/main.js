@@ -30,6 +30,8 @@ const translations = {
         statsFoodBeforeTitle: 'Top foods before high-pain days', statsFoodOnTitle: 'Top foods on high-pain days',
         statsNotesTitle: 'Top notes on high-pain days', statsSymptomsTitle: 'Top symptoms on high-pain days',
         statsNotEnoughData: 'Not enough data yet.',
+        triggerBaselineNotEnoughData: 'Not enough data yet: at least {{triggerDays}} high-pain days and {{baselineDays}} other tracked days are needed.',
+        triggerBaselineNote: 'This shows association, not proof of causation. Small samples are unreliable. Cravings before an attack can make a food look like a trigger when it is actually an early symptom. Treat this as a hint to discuss with your doctor.',
         cardBreakfast: 'Breakfast', cardLunch: 'Lunch', cardOtherFood: 'Other food', cardWater: 'Water',
         cardSleep: 'Sleep', cardPeriod: 'Period', cardMedicine: 'Medicine', cardSymptoms: 'Other symptoms',
         cardNotes: 'Notes', cardWeather: 'Weather',
@@ -114,6 +116,8 @@ const translations = {
         statsFoodBeforeTitle: 'Top-Lebensmittel vor Tagen mit hohem Schmerzlevel', statsFoodOnTitle: 'Top-Lebensmittel an Tagen mit hohem Schmerzlevel',
         statsNotesTitle: 'Top-Notizen an Tagen mit hohem Schmerzlevel', statsSymptomsTitle: 'Top-Symptome an Tagen mit hohem Schmerzlevel',
         statsNotEnoughData: 'Noch nicht genug Daten.',
+        triggerBaselineNotEnoughData: 'Noch nicht genug Daten: mindestens {{triggerDays}} Tage mit hohem Schmerzlevel und {{baselineDays}} andere erfasste Tage werden benötigt.',
+        triggerBaselineNote: 'Dies zeigt einen Zusammenhang, nicht den Beweis einer Ursache. Kleine Stichproben sind nicht zuverlässig. Heißhunger vor einem Anfall kann ein Lebensmittel wie einen Auslöser aussehen lassen, wenn es tatsächlich ein frühes Symptom ist. Sieh das als Hinweis für das Gespräch mit deinem Arzt.',
         cardBreakfast: 'Frühstück', cardLunch: 'Mittagessen', cardOtherFood: 'Sonstiges Essen', cardWater: 'Wasser',
         cardSleep: 'Schlaf', cardPeriod: 'Periode', cardMedicine: 'Medikament', cardSymptoms: 'Andere Symptome',
         cardNotes: 'Notizen', cardWeather: 'Wetter',
@@ -198,6 +202,8 @@ const translations = {
         statsFoodBeforeTitle: 'Vanligaste maten dagen före hög smärta', statsFoodOnTitle: 'Vanligaste maten på dagar med hög smärta',
         statsNotesTitle: 'Vanligaste anteckningar på dagar med hög smärta', statsSymptomsTitle: 'Vanligaste symtom på dagar med hög smärta',
         statsNotEnoughData: 'Inte tillräckligt med data än.',
+        triggerBaselineNotEnoughData: 'Inte tillräckligt med data ännu: minst {{triggerDays}} dagar med höga smärtor och {{baselineDays}} andra spårade dagar behövs.',
+        triggerBaselineNote: 'Detta visar associering, inte bevis på orsakssamband. Små prover är opålitliga. Längtan innan ett anfall kan göra att en mat ser ut som en utlösare när det faktiskt är ett tidigt symtom. Se detta som underlag för diskussionen med din läkare.',
         cardBreakfast: 'Frukost', cardLunch: 'Lunch', cardOtherFood: 'Annan mat', cardWater: 'Vatten',
         cardSleep: 'Sömn', cardPeriod: 'Mens', cardMedicine: 'Medicin', cardSymptoms: 'Andra symtom',
         cardNotes: 'Anteckningar', cardWeather: 'Väder',
@@ -1738,6 +1744,208 @@ function cancelEdit() {
 document.querySelector('#cancelEditButton').addEventListener('click', cancelEdit)
 
 const HIGH_PAIN_THRESHOLD = 5
+const MIN_TRIGGER_DAYS_FOR_ITEM = 3
+const MIN_DATA_THRESHOLD = 5
+
+const ITEM_SYNONYMS = {
+    'coffee': ['coffee', 'kaffee', 'café'],
+    'tea': ['tea', 'tee', 'chai'],
+    'water': ['water', 'wasser', 'vatten'],
+    'bread': ['bread', 'brot', 'brød'],
+    'cheese': ['cheese', 'käse', 'ost'],
+}
+
+function normalizeItem(text) {
+    if (!text) return ''
+    return text.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+function normalizeItems(text, fieldSplitter = null) {
+    if (!text || text.trim() === '') return []
+    
+    let items = [text]
+    if (fieldSplitter && typeof fieldSplitter === 'function') {
+        items = fieldSplitter({ raw_text: text })
+    }
+    
+    const normalized = []
+    const seen = new Set()
+    
+    items.forEach(item => {
+        if (!item || item.trim() === '' || item.trim() === '-' || item.toLowerCase() === 'none' || item.toLowerCase() === 'keine') return
+        
+        const normalized_item = normalizeItem(item)
+        if (normalized_item && !seen.has(normalized_item)) {
+            normalized.push(normalized_item)
+            seen.add(normalized_item)
+        }
+    })
+    
+    return normalized
+}
+
+function getItemFrequencyComparison(entries, fieldSplitter, options = {}) {
+    const { high_pain_threshold = HIGH_PAIN_THRESHOLD, min_item_appearances = MIN_TRIGGER_DAYS_FOR_ITEM } = options
+    
+    const triggerDates = new Set()
+    const baselineDates = new Set()
+    const triggerItems = {}
+    const baselineItems = {}
+    const itemDisplayNames = {}
+    
+    entries.forEach(entry => {
+        const date = entry.entry_date
+        const isHighPain = entry.pain_level >= high_pain_threshold
+        
+        if (isHighPain) {
+            triggerDates.add(date)
+        } else {
+            baselineDates.add(date)
+        }
+        
+        const items_list = fieldSplitter(entry) || []
+        const seen = new Set()
+        
+        items_list.forEach(item => {
+            if (!item || item.trim() === '' || item.trim() === '-' || item.toLowerCase() === 'none' || item.toLowerCase() === 'keine') return
+            
+            const normalized = normalizeItem(item)
+            if (!seen.has(normalized)) {
+                seen.add(normalized)
+                
+                if (!itemDisplayNames[normalized] || item.length > itemDisplayNames[normalized].length) {
+                    itemDisplayNames[normalized] = item.trim()
+                }
+                
+                if (isHighPain) {
+                    triggerItems[normalized] = (triggerItems[normalized] || 0) + 1
+                } else {
+                    baselineItems[normalized] = (baselineItems[normalized] || 0) + 1
+                }
+            }
+        })
+    })
+    
+    const results = []
+    const allItems = new Set([...Object.keys(triggerItems), ...Object.keys(baselineItems)])
+    
+    allItems.forEach(normalized => {
+        const triggerCount = triggerItems[normalized] || 0
+        if (triggerCount < min_item_appearances) return
+        
+        const baselineCount = baselineItems[normalized] || 0
+        const triggerPercent = (triggerCount / triggerDates.size) * 100
+        const baselinePercent = baselineDates.size > 0 ? (baselineCount / baselineDates.size) * 100 : 0
+        const percentDiff = triggerPercent - baselinePercent
+        const ratio = baselinePercent > 0 ? triggerPercent / baselinePercent : (triggerPercent > 0 ? Infinity : 1)
+        
+        results.push({
+            item: normalized,
+            displayName: itemDisplayNames[normalized],
+            triggerCount,
+            triggerDays: triggerDates.size,
+            baselineCount,
+            baselineDays: baselineDates.size,
+            triggerPercent,
+            baselinePercent,
+            percentDiff,
+            ratio
+        })
+    })
+    
+    results.sort((a, b) => b.percentDiff - a.percentDiff)
+    
+    return {
+        items: results.slice(0, 10),
+        triggerDays: triggerDates.size,
+        baselineDays: baselineDates.size
+    }
+}
+
+function getItemFrequencyComparisonBefore(entries, fieldSplitter, options = {}) {
+    const { high_pain_threshold = HIGH_PAIN_THRESHOLD, min_item_appearances = MIN_TRIGGER_DAYS_FOR_ITEM } = options
+    
+    const entriesByDate = {}
+    entries.forEach(entry => { entriesByDate[entry.entry_date] = entry })
+    
+    const triggerBeforeDates = new Set()
+    const baselineBeforeDates = new Set()
+    const triggerBeforeItems = {}
+    const baselineBeforeItems = {}
+    const itemDisplayNames = {}
+    
+    entries.forEach(entry => {
+        const date = entry.entry_date
+        const isHighPain = entry.pain_level >= high_pain_threshold
+        
+        const prevDate = shiftDate(date, -1)
+        const prevEntry = entriesByDate[prevDate]
+        if (!prevEntry) return
+        
+        if (isHighPain) {
+            triggerBeforeDates.add(prevDate)
+        } else {
+            baselineBeforeDates.add(prevDate)
+        }
+        
+        const items_list = fieldSplitter(prevEntry) || []
+        const seen = new Set()
+        
+        items_list.forEach(item => {
+            if (!item || item.trim() === '' || item.trim() === '-' || item.toLowerCase() === 'none' || item.toLowerCase() === 'keine') return
+            
+            const normalized = normalizeItem(item)
+            if (!seen.has(normalized)) {
+                seen.add(normalized)
+                
+                if (!itemDisplayNames[normalized] || item.length > itemDisplayNames[normalized].length) {
+                    itemDisplayNames[normalized] = item.trim()
+                }
+                
+                if (isHighPain) {
+                    triggerBeforeItems[normalized] = (triggerBeforeItems[normalized] || 0) + 1
+                } else {
+                    baselineBeforeItems[normalized] = (baselineBeforeItems[normalized] || 0) + 1
+                }
+            }
+        })
+    })
+    
+    const results = []
+    const allItems = new Set([...Object.keys(triggerBeforeItems), ...Object.keys(baselineBeforeItems)])
+    
+    allItems.forEach(normalized => {
+        const triggerCount = triggerBeforeItems[normalized] || 0
+        if (triggerCount < min_item_appearances) return
+        
+        const baselineCount = baselineBeforeItems[normalized] || 0
+        const triggerPercent = (triggerCount / triggerBeforeDates.size) * 100
+        const baselinePercent = baselineBeforeDates.size > 0 ? (baselineCount / baselineBeforeDates.size) * 100 : 0
+        const percentDiff = triggerPercent - baselinePercent
+        const ratio = baselinePercent > 0 ? triggerPercent / baselinePercent : (triggerPercent > 0 ? Infinity : 1)
+        
+        results.push({
+            item: normalized,
+            displayName: itemDisplayNames[normalized],
+            triggerCount,
+            triggerDays: triggerBeforeDates.size,
+            baselineCount,
+            baselineDays: baselineBeforeDates.size,
+            triggerPercent,
+            baselinePercent,
+            percentDiff,
+            ratio
+        })
+    })
+    
+    results.sort((a, b) => b.percentDiff - a.percentDiff)
+    
+    return {
+        items: results.slice(0, 10),
+        triggerDays: triggerBeforeDates.size,
+        baselineDays: baselineBeforeDates.size
+    }
+}
 
 function average(numbers) {
     if (numbers.length === 0) return null
@@ -1784,6 +1992,50 @@ function countItemsBeforeHighPainDays(entries, fieldSplitter) {
     return Object.entries(counts)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10)
+}
+
+function renderTriggerComparisonList(containerId, comparison, noteKey = 'triggerBaselineNote') {
+    const container = document.querySelector(`#${containerId}`)
+    
+    if (comparison.triggerDays < MIN_DATA_THRESHOLD || comparison.baselineDays < MIN_DATA_THRESHOLD) {
+        const message = t('triggerBaselineNotEnoughData')
+            .replace('{{triggerDays}}', MIN_DATA_THRESHOLD)
+            .replace('{{baselineDays}}', MIN_DATA_THRESHOLD)
+        container.innerHTML = `
+            <p class="stats-empty">${message}</p>
+            <div class="stats-data-count">${comparison.triggerDays} ${t('statsTotal').toLowerCase()}, ${comparison.baselineDays} ${t('statsTotal').toLowerCase()}</div>
+            <p class="stats-trigger-note">${t(noteKey)}</p>
+        `
+        return
+    }
+
+    if (comparison.items.length === 0) {
+        container.innerHTML = `
+            <p class="stats-empty">${t('statsNotEnoughData')}</p>
+            <p class="stats-trigger-note">${t(noteKey)}</p>
+        `
+        return
+    }
+
+    container.innerHTML = `
+      <ul class="stats-trigger-list">
+        ${comparison.items.map(item => `
+          <li class="trigger-comparison-item ${item.triggerPercent > item.baselinePercent ? 'above-baseline' : 'below-baseline'}">
+            <div class="comparison-item-header">
+              <span data-translatable data-original="${item.displayName.replace(/"/g, '&quot;')}" class="trigger-item-name">${item.displayName}</span>
+              <span class="comparison-counts">${item.triggerCount} of ${item.triggerDays} (${item.triggerPercent.toFixed(0)}%) vs ${item.baselineCount} of ${item.baselineDays} (${item.baselinePercent.toFixed(0)}%)</span>
+            </div>
+            <div class="comparison-bars">
+              <div class="trigger-bar" style="flex-basis: ${Math.max(item.triggerPercent, 2)}%;" title="Trigger: ${item.triggerPercent.toFixed(1)}%"></div>
+              <div class="baseline-bar" style="flex-basis: ${Math.max(item.baselinePercent, 2)}%;" title="Baseline: ${item.baselinePercent.toFixed(1)}%"></div>
+            </div>
+          </li>
+        `).join('')}
+      </ul>
+      <p class="stats-trigger-note">${t(noteKey)}</p>
+    `
+
+    translateVisibleFreeText(container)
 }
 
 function renderTriggerList(containerId, items) {
@@ -2388,25 +2640,25 @@ function renderStats() {
       <div class="stats-card"><strong>${periodDays}</strong><span>${t('statsPeriodDays')}</span></div>
     `
 
-    const foodBeforeTriggers = countItemsBeforeHighPainDays(historyEntries, entry =>
+    const foodBeforeComparison = getItemFrequencyComparisonBefore(historyEntries, entry =>
         [entry.breakfast, entry.lunch, entry.other_food].filter(Boolean).flatMap(field => field.split(/[,\n]/))
     )
-    renderTriggerList('statsFoodBeforeTriggers', foodBeforeTriggers)
+    renderTriggerComparisonList('statsFoodBeforeTriggers', foodBeforeComparison)
 
-    const foodTriggers = countItemsOnHighPainDays(historyEntries, entry =>
+    const foodTriggers = getItemFrequencyComparison(historyEntries, entry =>
         [entry.breakfast, entry.lunch, entry.other_food].filter(Boolean).flatMap(field => field.split(/[,\n]/))
     )
-    renderTriggerList('statsFoodTriggers', foodTriggers)
+    renderTriggerComparisonList('statsFoodTriggers', foodTriggers)
 
-    const noteTriggers = countItemsOnHighPainDays(historyEntries, entry =>
+    const noteTriggers = getItemFrequencyComparison(historyEntries, entry =>
         entry.notes ? entry.notes.split(';') : []
     )
-    renderTriggerList('statsNoteTriggers', noteTriggers)
+    renderTriggerComparisonList('statsNoteTriggers', noteTriggers)
 
-    const symptomTriggers = countItemsOnHighPainDays(historyEntries, entry =>
+    const symptomTriggers = getItemFrequencyComparison(historyEntries, entry =>
         entry.other_symptoms ? entry.other_symptoms.split(';') : []
     )
-    renderTriggerList('statsSymptomTriggers', symptomTriggers)
+    renderTriggerComparisonList('statsSymptomTriggers', symptomTriggers)
 
     renderMedicineStats()
     renderMedicationOveruse()
