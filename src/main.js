@@ -89,7 +89,18 @@ const translations = {
         medTrendBeforeAny: 'Before any dose', medEndDate: 'Ended on (leave empty if ongoing)', medEndedWord: 'ended', ongoingWord: 'ongoing',
         cycleTitle: 'Cycle-aware view', cycleNotEnough: 'Not enough tracked cycles yet — at least 2 full cycles are needed.',
         cycleBasedOn: 'Based on', cycleWord: 'cycle', cyclesWord: 'cycles', cycleDayAxis: 'Cycle day',
-        cycleNote: 'Red bars mark days you logged as period days, averaged across your tracked cycles. Cycle day 1 is the first day of each period. Short or irregular cycles can shift this, so treat it as a pattern to discuss rather than a fixed rule.'
+        cycleNote: 'Red bars mark days you logged as period days, averaged across your tracked cycles. Cycle day 1 is the first day of each period. Short or irregular cycles can shift this, so treat it as a pattern to discuss rather than a fixed rule.',
+        doctorReportTitle: 'Doctor Report', doctorReportDesc: 'Generate a summary to bring to your doctor.',
+        reportPeriod: 'Report period', lastMonth: 'Last month', last3Months: 'Last 3 months', customRange: 'Custom range',
+        from: 'From', to: 'To', generatePDF: 'Create PDF', preview: 'Preview',
+        reportOptions: 'What to include (optional)', reportOptFood: 'Food triggers', reportOptWeather: 'Weather patterns',
+        reportOptNotes: 'Top notes', reportOptCycle: 'Menstrual cycle data',
+        reportSummary: 'Summary', daysTracked: 'Days tracked', avgPainOnDays: 'Avg pain on tracked days',
+        highestPain: 'Highest pain', numberOfAttacks: 'Number of attacks', acuteMedicationUsage: 'Acute medication usage',
+        daysWithAcuteMed: 'days with acute medication', helped: 'helped', regularMedicationLabel: 'Regular medication',
+        migraineDatesInPeriod: 'Migraine dates in this period', reportDisclaimer: 'Generated from my own tracking, not a medical document.',
+        generatedOn: 'Generated on', cycleDaysReported: 'Period days reported', topFoods: 'Top foods',
+        topNotes: 'Top notes', none: 'None'
     },
     de: {
         appTitle: 'Migräne-Kalender',
@@ -175,7 +186,18 @@ const translations = {
         medTrendBeforeAny: 'Vor jeder Dosis', medEndDate: 'Beendet am (leer lassen, falls aktuell)', medEndedWord: 'beendet', ongoingWord: 'laufend',
         cycleTitle: 'Zyklusansicht', cycleNotEnough: 'Noch nicht genug erfasste Zyklen — mindestens 2 vollständige Zyklen werden benötigt.',
         cycleBasedOn: 'Basierend auf', cycleWord: 'Zyklus', cyclesWord: 'Zyklen', cycleDayAxis: 'Zyklustag',
-        cycleNote: 'Rote Balken markieren als Periodentage erfasste Tage, gemittelt über deine erfassten Zyklen. Zyklustag 1 ist der erste Tag jeder Periode. Kurze oder unregelmäßige Zyklen können dies verschieben — sieh es als Muster für das Gespräch mit deinem Arzt, nicht als feste Regel.'
+        cycleNote: 'Rote Balken markieren als Periodentage erfasste Tage, gemittelt über deine erfassten Zyklen. Zyklustag 1 ist der erste Tag jeder Periode. Kurze oder unregelmäßige Zyklen können dies verschieben — sieh es als Muster für das Gespräch mit deinem Arzt, nicht als feste Regel.',
+        doctorReportTitle: 'Arztbericht', doctorReportDesc: 'Erstelle eine Zusammenfassung für deinen Arzt.',
+        reportPeriod: 'Berichtzeitraum', lastMonth: 'Letzter Monat', last3Months: 'Letzte 3 Monate', customRange: 'Benutzerdefinierter Bereich',
+        from: 'Von', to: 'Bis', generatePDF: 'PDF erstellen', preview: 'Vorschau',
+        reportOptions: 'Was einbeziehen (optional)', reportOptFood: 'Lebensmittel', reportOptWeather: 'Wettermuster',
+        reportOptNotes: 'Top-Notizen', reportOptCycle: 'Menstruationszyklus-Daten',
+        reportSummary: 'Zusammenfassung', daysTracked: 'Erfasste Tage', avgPainOnDays: 'Ø Schmerzlevel an Tagen mit Schmerzen',
+        highestPain: 'Höchster Schmerz', numberOfAttacks: 'Anzahl der Attacken', acuteMedicationUsage: 'Akutmedikation-Nutzung',
+        daysWithAcuteMed: 'Tage mit Akutmedikation', helped: 'geholfen', regularMedicationLabel: 'Dauermedikation',
+        migraineDatesInPeriod: 'Migränetage in diesem Zeitraum', reportDisclaimer: 'Aus meiner eigenen Erfassung erstellt, kein medizinisches Dokument.',
+        generatedOn: 'Erstellt am', cycleDaysReported: 'Erfasste Periodentage', topFoods: 'Top-Lebensmittel',
+        topNotes: 'Top-Notizen', none: 'Keine'
     },
     sv: {
         appTitle: 'Migränkalender',
@@ -261,7 +283,18 @@ const translations = {
         medTrendBeforeAny: 'Före någon dos', medEndDate: 'Avslutad (lämna tomt om pågående)', medEndedWord: 'avslutad', ongoingWord: 'pågående',
         cycleTitle: 'Cykelvy', cycleNotEnough: 'Inte tillräckligt med spårade cykler än — minst 2 fullständiga cykler behövs.',
         cycleBasedOn: 'Baserat på', cycleWord: 'cykel', cyclesWord: 'cykler', cycleDayAxis: 'Cykeldag',
-        cycleNote: 'Röda staplar markerar dagar du loggat som mensdagar, i genomsnitt över dina spårade cykler. Cykeldag 1 är den första dagen i varje mens. Korta eller oregelbundna cykler kan förskjuta detta — se det som ett mönster att diskutera, inte en fast regel.'
+        cycleNote: 'Röda staplar markerar dagar du loggat som mensdagar, i genomsnitt över dina spårade cykler. Cykeldag 1 är den första dagen i varje mens. Korta eller oregelbundna cykler kan förskjuta detta — se det som ett mönster att diskutera, inte en fast regel.',
+        doctorReportTitle: 'Läkarrapport', doctorReportDesc: 'Skapa en sammanfattning för din läkare.',
+        reportPeriod: 'Rapportperiod', lastMonth: 'Förra månaden', last3Months: 'Senaste 3 månaderna', customRange: 'Anpassat intervall',
+        from: 'Från', to: 'Till', generatePDF: 'Skapa PDF', preview: 'Förhandsgranska',
+        reportOptions: 'Vad som ska ingå (valfritt)', reportOptFood: 'Matutlösare', reportOptWeather: 'Vädermönster',
+        reportOptNotes: 'Topanteckningar', reportOptCycle: 'Menstruationsdata',
+        reportSummary: 'Sammanfattning', daysTracked: 'Spårade dagar', avgPainOnDays: 'Genomsn. smärta på spårade dagar',
+        highestPain: 'Högsta smärta', numberOfAttacks: 'Antal attacker', acuteMedicationUsage: 'Akut medicineringsleverans',
+        daysWithAcuteMed: 'dagar med akut medicin', helped: 'hjälpte', regularMedicationLabel: 'Regelbunden medicin',
+        migraineDatesInPeriod: 'Migrändatum under denna period', reportDisclaimer: 'Genererad från min egen spårning, inte ett medicinskt dokument.',
+        generatedOn: 'Genererad den', cycleDaysReported: 'Spårade mensdagar', topFoods: 'Topmat',
+        topNotes: 'Topanteckningar', none: 'Ingen'
     }
 }
 
@@ -849,6 +882,68 @@ document.querySelector('#app').innerHTML = `
             <div id="statsSymptomTriggers"></div>
           </div>
         </div>
+
+        <div class="doctor-report-section">
+          <h2 data-i18n="doctorReportTitle">Doctor Report</h2>
+          <p data-i18n="doctorReportDesc">Generate a summary to bring to your doctor.</p>
+          
+          <div class="form-grid">
+            <label>
+              <span data-i18n="reportPeriod">Report period</span>
+              <select id="reportPeriodSelect">
+                <option value="lastMonth" data-i18n="lastMonth">Last month</option>
+                <option value="last3Months" data-i18n="last3Months">Last 3 months</option>
+                <option value="custom">Custom range</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="customDateRange" style="display:none" class="form-grid">
+            <label>
+              <span data-i18n="from">From</span>
+              <input type="date" id="reportStartDate">
+            </label>
+            <label>
+              <span data-i18n="to">To</span>
+              <input type="date" id="reportEndDate">
+            </label>
+          </div>
+
+          <label class="form-grid">
+            <span data-i18n="medicine">Medicine</span>
+            <select id="reportMedicineSelect">
+              <option value="">None</option>
+            </select>
+          </label>
+
+          <div class="report-options-section">
+            <p data-i18n="reportOptions">What to include (optional)</p>
+            <label class="report-checkbox">
+              <input type="checkbox" id="reportOptFood">
+              <span data-i18n="reportOptFood">Food triggers</span>
+            </label>
+            <label class="report-checkbox">
+              <input type="checkbox" id="reportOptWeather">
+              <span data-i18n="reportOptWeather">Weather patterns</span>
+            </label>
+            <label class="report-checkbox">
+              <input type="checkbox" id="reportOptNotes">
+              <span data-i18n="reportOptNotes">Top notes</span>
+            </label>
+            <label class="report-checkbox">
+              <input type="checkbox" id="reportOptCycle">
+              <span data-i18n="reportOptCycle">Menstrual cycle data</span>
+            </label>
+          </div>
+
+          <div class="button-group">
+            <button type="button" id="reportPreviewButton" class="secondary-button" data-i18n="preview">Preview</button>
+            <button type="button" id="reportGeneratePDFButton" class="save-button" data-i18n="generatePDF">Create PDF</button>
+          </div>
+        </div>
+
+        <div id="reportPreviewContainer" style="display:none" class="report-preview-container"></div>
+        <div id="reportPrintContainer" style="display:none" class="report-print-container"></div>
       </section>
     </main>
   </div>
@@ -884,6 +979,98 @@ navButtons.forEach(button => {
         document.querySelector(`#${selectedPage}-page`).classList.add('active')
     })
 })
+
+// Doctor Report Event Handlers
+if (document.querySelector('#reportPeriodSelect')) {
+    // Populate medicine selector
+    const medSelect = document.querySelector('#reportMedicineSelect')
+    function updateReportMedicineSelector() {
+        const currentValue = medSelect.value
+        medSelect.innerHTML = '<option value="">None</option>'
+        dailyMedications.forEach(med => {
+            const option = document.createElement('option')
+            option.value = med.name
+            option.textContent = med.name
+            medSelect.appendChild(option)
+        })
+        medSelect.value = currentValue
+    }
+    updateReportMedicineSelector()
+    
+    document.querySelector('#reportPeriodSelect').addEventListener('change', (e) => {
+        const customRange = document.querySelector('#customDateRange')
+        customRange.style.display = e.target.value === 'custom' ? 'grid' : 'none'
+    })
+
+    document.querySelector('#reportPreviewButton').addEventListener('click', () => {
+        const period = document.querySelector('#reportPeriodSelect').value
+        const startDate = document.querySelector('#reportStartDate').value
+        const endDate = document.querySelector('#reportEndDate').value
+        
+        let dateRange
+        if (period === 'custom') {
+            if (!startDate || !endDate) {
+                alert(t('pleaseChooseDate'))
+                return
+            }
+            dateRange = { startDate, endDate }
+        } else {
+            dateRange = getDateRange(period)
+        }
+
+        const options = {
+            includeFoods: document.querySelector('#reportOptFood').checked,
+            includeWeather: document.querySelector('#reportOptWeather').checked,
+            includeNotes: document.querySelector('#reportOptNotes').checked,
+            includeCycle: document.querySelector('#reportOptCycle').checked,
+            selectedMedicine: document.querySelector('#reportMedicineSelect').value || null
+        }
+
+        const reportData = buildReportData(historyEntries, dailyMedications, dateRange.startDate, dateRange.endDate, options)
+        const html = renderReportHTML(reportData, currentLang, t)
+        
+        const previewContainer = document.querySelector('#reportPreviewContainer')
+        previewContainer.innerHTML = html
+        previewContainer.style.display = 'block'
+        previewContainer.scrollIntoView({ behavior: 'smooth' })
+    })
+
+    document.querySelector('#reportGeneratePDFButton').addEventListener('click', async () => {
+        const period = document.querySelector('#reportPeriodSelect').value
+        const startDate = document.querySelector('#reportStartDate').value
+        const endDate = document.querySelector('#reportEndDate').value
+        
+        let dateRange
+        if (period === 'custom') {
+            if (!startDate || !endDate) {
+                alert(t('pleaseChooseDate'))
+                return
+            }
+            dateRange = { startDate, endDate }
+        } else {
+            dateRange = getDateRange(period)
+        }
+
+        const options = {
+            includeFoods: document.querySelector('#reportOptFood').checked,
+            includeWeather: document.querySelector('#reportOptWeather').checked,
+            includeNotes: document.querySelector('#reportOptNotes').checked,
+            includeCycle: document.querySelector('#reportOptCycle').checked,
+            selectedMedicine: document.querySelector('#reportMedicineSelect').value || null
+        }
+
+        const reportData = buildReportData(historyEntries, dailyMedications, dateRange.startDate, dateRange.endDate, options)
+        const html = await renderReportHTML(reportData, currentLang, t)
+        
+        const printContainer = document.querySelector('#reportPrintContainer')
+        printContainer.innerHTML = html
+        printContainer.style.display = 'block'
+        
+        setTimeout(() => {
+            window.print()
+        }, 300)
+    })
+}
 
 document.querySelector('#migraine-form').addEventListener('submit', async event => {
     event.preventDefault()
@@ -2939,6 +3126,205 @@ function renderDailyMedList() {
             document.querySelector('#daily-med-form').scrollIntoView({ behavior: 'smooth' })
         })
     })
+}
+
+// Doctor Report Functions
+function buildReportData(entries, regularMeds, startDate, endDate, options = {}) {
+    const filtered = entries.filter(e => e.entry_date >= startDate && e.entry_date <= endDate)
+    
+    if (filtered.length === 0) {
+        return { isEmpty: true, startDate, endDate, generatedDate: new Date().toISOString().slice(0, 10) }
+    }
+
+    const migraineDays = filtered.filter(e => e.headache_type === 'migraine').length
+    const headacheDays = filtered.filter(e => e.headache_type === 'headache').length
+    const painLevels = filtered.map(e => e.pain_level)
+    const avgPain = average(painLevels)
+    const maxPain = Math.max(...painLevels)
+    const attacks = filtered.filter(e => e.headache_type !== 'none').length
+
+    const acuteMedData = computeAcuteMedicationStats(filtered)
+    const activeMeds = regularMeds.filter(med => {
+        const medStart = new Date(med.start_date)
+        const medEnd = med.end_date ? new Date(med.end_date) : new Date('2099-12-31')
+        const periodStart = new Date(startDate)
+        const periodEnd = new Date(endDate)
+        return medStart <= periodEnd && medEnd >= periodStart
+    })
+    const migraineDates = filtered.filter(e => e.headache_type === 'migraine').map(e => e.entry_date).sort()
+    const monthlyStats = computeMonthlyStats(filtered)
+
+    const optionalData = {}
+    if (options.includeFoods) {
+        optionalData.topFoods = extractTopItems(filtered, e => 
+            [e.breakfast, e.lunch, e.other_food].filter(Boolean).flatMap(f => f.split(/[,\n]/).map(s => s.trim()))
+        )
+    }
+    if (options.includeNotes) {
+        optionalData.topNotes = extractTopItems(filtered, e => 
+            e.notes ? e.notes.split(';').map(s => s.trim()) : []
+        )
+    }
+    if (options.includeCycle) {
+        optionalData.cycleDays = filtered.filter(e => e.had_period === true).length
+    }
+
+    return {
+        isEmpty: false, startDate, endDate, generatedDate: new Date().toISOString().slice(0, 10),
+        totalTrackedDays: filtered.length, migraineDays, headacheDays,
+        avgPain: Math.round(avgPain * 10) / 10, maxPain, attacks,
+        acuteMedData, activeMeds, migraineDates, monthlyStats, optionalData,
+        selectedMedicine: options.selectedMedicine || null
+    }
+}
+
+function computeAcuteMedicationStats(entries) {
+    const byMonth = {}, monthlyHelped = {}
+    entries.forEach(e => {
+        const month = e.entry_date.slice(0, 7)
+        if (!byMonth[month]) {
+            byMonth[month] = new Set()
+            monthlyHelped[month] = { helped: 0, total: 0 }
+        }
+        if (e.medicine && !isMedicineEmpty(e.medicine)) {
+            byMonth[month].add(e.entry_date)
+            monthlyHelped[month].total++
+            if (e.medicine_helped === 'yes') monthlyHelped[month].helped++
+        }
+    })
+    return { byMonth: Object.fromEntries(Object.entries(byMonth).map(([m, s]) => [m, s.size])), monthlyHelped }
+}
+
+function computeMonthlyStats(entries) {
+    const byMonth = {}
+    entries.forEach(e => {
+        const month = e.entry_date.slice(0, 7)
+        if (!byMonth[month]) byMonth[month] = []
+        byMonth[month].push(e)
+    })
+    return Object.entries(byMonth).sort(([m1], [m2]) => m1.localeCompare(m2)).map(([month, ents]) => ({
+        month, tracked: ents.length, migraines: ents.filter(e => e.headache_type === 'migraine').length,
+        avgPain: Math.round(average(ents.map(e => e.pain_level)) * 10) / 10
+    }))
+}
+
+function extractTopItems(entries, itemExtractor, limit = 5) {
+    const counts = {}
+    entries.forEach(e => {
+        itemExtractor(e).forEach(item => {
+            if (item && item.trim()) counts[item.toLowerCase()] = (counts[item.toLowerCase()] || 0) + 1
+        })
+    })
+    return Object.entries(counts).sort(([, a], [, b]) => b - a).slice(0, limit)
+        .map(([name, count]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), count }))
+}
+
+function formatMonthShort(monthStr) {
+    const [year, month] = monthStr.split('-')
+    return new Date(`${year}-${month}-01`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+}
+
+async function renderReportHTML(reportData, lang, t) {
+    if (reportData.isEmpty) return `<p>${t('noEntriesYet')}</p>`
+    
+    const formatDate = (dateStr) => new Date(dateStr + 'T00:00:00Z').toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-US')
+    
+    let chartHTML = ''
+    if (reportData.monthlyStats && reportData.monthlyStats.length > 0 && reportData.selectedMedicine) {
+        chartHTML = await generateChartImage(reportData, lang)
+    }
+    
+    return `<div class="doctor-report-content">
+        <div class="report-header">
+            <h1>${t('doctorReportTitle')}</h1>
+            <p>${formatDate(reportData.startDate)} – ${formatDate(reportData.endDate)}</p>
+            <p class="report-generated">${t('generatedOn')}: ${formatDate(reportData.generatedDate)}</p>
+        </div>
+        <div class="report-section">
+            <h2>${t('reportSummary')}</h2>
+            <div class="report-grid">
+                <div class="report-stat"><div class="stat-value">${reportData.totalTrackedDays}</div><div class="stat-label">${t('daysTracked')}</div></div>
+                <div class="report-stat"><div class="stat-value">${reportData.migraineDays}</div><div class="stat-label">${t('statsMigraine')}</div></div>
+                <div class="report-stat"><div class="stat-value">${reportData.headacheDays}</div><div class="stat-label">${t('statsHeadache')}</div></div>
+                <div class="report-stat"><div class="stat-value">${reportData.avgPain}</div><div class="stat-label">${t('avgPainOnDays')}</div></div>
+                <div class="report-stat"><div class="stat-value">${reportData.maxPain}</div><div class="stat-label">${t('highestPain')}</div></div>
+                <div class="report-stat"><div class="stat-value">${reportData.attacks}</div><div class="stat-label">${t('numberOfAttacks')}</div></div>
+            </div>
+        </div>
+        ${reportData.acuteMedData.byMonth && Object.keys(reportData.acuteMedData.byMonth).length > 0 ? `
+        <div class="report-section">
+            <h2>${t('acuteMedicationUsage')}</h2>
+            <div class="med-usage-table">
+                ${Object.entries(reportData.acuteMedData.byMonth).map(([month, days]) => {
+                    const helped = reportData.acuteMedData.monthlyHelped[month]
+                    return `<div class="med-usage-row"><span class="med-month">${formatMonthShort(month)}</span><span>${days} ${t('daysWithAcuteMed')}</span><span>${helped.helped}/${helped.total} ${t('helped')}</span></div>`
+                }).join('')}
+            </div>
+        </div>` : ''}
+        ${reportData.activeMeds.length > 0 ? `<div class="report-section"><h2>${t('regularMedicationLabel')}</h2><ul class="med-list">${reportData.activeMeds.map(med => `<li>${med.name}${med.dose ? ' (' + med.dose + ')' : ''}</li>`).join('')}</ul></div>` : ''}
+        ${chartHTML ? `<div class="report-section"><h2>${reportData.selectedMedicine} vs. Migraine Days</h2>${chartHTML}</div>` : ''}
+        ${reportData.optionalData.cycleDays !== undefined ? `<div class="report-section"><p>${t('cycleDaysReported')}: ${reportData.optionalData.cycleDays}</p></div>` : ''}
+        ${reportData.optionalData.topFoods && reportData.optionalData.topFoods.length > 0 ? `<div class="report-section"><h2>${t('topFoods')}</h2><ul class="compact-list">${reportData.optionalData.topFoods.map(f => `<li>${f.name} (${f.count}x)</li>`).join('')}</ul></div>` : ''}
+        ${reportData.optionalData.topNotes && reportData.optionalData.topNotes.length > 0 ? `<div class="report-section"><h2>${t('topNotes')}</h2><ul class="compact-list">${reportData.optionalData.topNotes.map(n => `<li>${n.name} (${n.count}x)</li>`).join('')}</ul></div>` : ''}
+        <div class="report-section"><h2>${t('migraineDatesInPeriod')}</h2><p class="compact-dates">${reportData.migraineDates.map(d => formatDate(d)).join(', ') || t('none')}</p></div>
+        <div class="report-footer"><p>${t('reportDisclaimer')}</p></div>
+    </div>`
+}
+
+async function generateChartImage(reportData, lang) {
+    return new Promise((resolve) => {
+        const canvas = document.createElement('canvas')
+        canvas.width = 400
+        canvas.height = 200
+        const ctx = canvas.getContext('2d')
+        
+        const months = reportData.monthlyStats.map(m => formatMonthShort(m.month))
+        const migraineDays = reportData.monthlyStats.map(m => m.migraines)
+        
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Migraine Days',
+                    data: migraineDays,
+                    backgroundColor: '#d32f2f',
+                    borderColor: '#b71c1c',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true },
+                    title: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: Math.max(...migraineDays, 5) }
+                }
+            }
+        })
+        
+        setTimeout(() => {
+            const imageData = canvas.toDataURL('image/png')
+            resolve(`<img src="${imageData}" style="width: 100%; max-width: 400px; height: auto; border: 1px solid #ddd; border-radius: 4px;">`)
+            chart.destroy()
+        }, 100)
+    })
+}
+
+function getDateRange(selection) {
+    const today = new Date()
+    const endDate = new Date(today.getFullYear(), today.getMonth(), 0)
+    let startDate
+    if (selection === 'lastMonth') {
+        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+    } else if (selection === 'last3Months') {
+        startDate = new Date(today.getFullYear(), today.getMonth() - 3, 1)
+    }
+    const formatDate = (d) => d.toISOString().slice(0, 10)
+    return { startDate: formatDate(startDate), endDate: formatDate(endDate) }
 }
 
 document.querySelector('#cancelMedEditButton').addEventListener('click', () => {

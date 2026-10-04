@@ -1021,3 +1021,263 @@ body.dark-mode .med-badge-over {
     gap: 8px;
     flex-shrink: 0;
 }
+
+/* Doctor Report Styling */
+.doctor-report-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 30px;
+}
+
+.doctor-report-section h2 {
+    margin-top: 0;
+}
+
+.doctor-report-section p {
+    color: var(--text-muted);
+    margin: 12px 0;
+}
+
+.report-options-section {
+    margin: 20px 0;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: 8px;
+}
+
+.report-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.report-checkbox input {
+    margin: 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.report-preview-container {
+    margin-top: 30px;
+    background: white;
+    color: black;
+    padding: 24px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.doctor-report-content {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #222;
+}
+
+.report-header {
+    text-align: center;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 16px;
+}
+
+.report-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+}
+
+.report-header p {
+    margin: 4px 0;
+    color: #666;
+}
+
+.report-generated {
+    font-size: 12px;
+    color: #999;
+}
+
+.report-section {
+    margin-bottom: 20px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.report-section h2 {
+    font-size: 16px;
+    margin: 16px 0 12px 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+}
+
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.report-stat {
+    background: #f5f5f5;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #d32f2f;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+}
+
+.med-usage-table {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.med-usage-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.med-usage-row:last-child {
+    border-bottom: none;
+}
+
+.med-month {
+    font-weight: bold;
+    min-width: 80px;
+}
+
+.med-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.med-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.med-list li:last-child {
+    border-bottom: none;
+}
+
+.compact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    column-count: 2;
+    column-gap: 20px;
+    font-size: 13px;
+}
+
+.compact-list li {
+    padding: 6px 0;
+    break-inside: avoid;
+}
+
+.compact-dates {
+    font-size: 13px;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.report-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    font-size: 11px;
+    color: #999;
+}
+
+.report-section img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+@media print {
+    .header,
+    .nav,
+    .filter-panel,
+    .secondary-button,
+    #calendarDetail .edit-entry-button,
+    .history-card-footer,
+    .doctor-report-section,
+    #reportPreviewContainer {
+        display: none !important;
+    }
+
+    #reportPrintContainer {
+        display: block !important;
+        max-width: 100%;
+        background: white;
+        color: black;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .report-preview-container {
+        display: none !important;
+    }
+
+    .doctor-report-content {
+        background: white;
+        color: black;
+        padding: 0;
+        border: none;
+    }
+
+    .report-header {
+        page-break-after: avoid;
+    }
+
+    .report-section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .app-container {
+        max-width: 100%;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 650px) {
+    .report-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .compact-list {
+        column-count: 1;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+}
