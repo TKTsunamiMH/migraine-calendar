@@ -943,10 +943,11 @@ document.querySelector('#app').innerHTML = `
         </div>
 
         <div id="reportPreviewContainer" style="display:none" class="report-preview-container"></div>
-        <div id="reportPrintContainer" style="display:none" class="report-print-container"></div>
+        // <div id="reportPrintContainer" style="display:none" class="report-print-container"></div>
       </section>
     </main>
   </div>
+<div id="reportPrintContainer" class="report-print-container"></div>
 `
 
 const painLevel = document.querySelector('#painLevel')
@@ -1002,7 +1003,7 @@ if (document.querySelector('#reportPeriodSelect')) {
         customRange.style.display = e.target.value === 'custom' ? 'grid' : 'none'
     })
 
-    document.querySelector('#reportPreviewButton').addEventListener('click', () => {
+    document.querySelector('#reportPreviewButton').addEventListener('click', async () => {
         const period = document.querySelector('#reportPeriodSelect').value
         const startDate = document.querySelector('#reportStartDate').value
         const endDate = document.querySelector('#reportEndDate').value
@@ -1027,7 +1028,7 @@ if (document.querySelector('#reportPeriodSelect')) {
         }
 
         const reportData = buildReportData(historyEntries, dailyMedications, dateRange.startDate, dateRange.endDate, options)
-        const html = renderReportHTML(reportData, currentLang, t)
+        const html = await renderReportHTML(reportData, currentLang, t)
         
         const previewContainer = document.querySelector('#reportPreviewContainer')
         previewContainer.innerHTML = html
@@ -1064,11 +1065,14 @@ if (document.querySelector('#reportPeriodSelect')) {
         
         const printContainer = document.querySelector('#reportPrintContainer')
         printContainer.innerHTML = html
-        printContainer.style.display = 'block'
-        
-        setTimeout(() => {
-            window.print()
-        }, 300)
+
+        document.body.classList.add('printing-report')
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('printing-report')
+            printContainer.innerHTML = ''
+        }, { once: true })
+
+        setTimeout(() => window.print(), 300)
     })
 }
 

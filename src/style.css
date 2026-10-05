@@ -1060,10 +1060,13 @@ body.dark-mode .med-badge-over {
 }
 
 .button-group {
+    align-items: center;
     display: flex;
     gap: 12px;
     margin-top: 20px;
 }
+
+.button-group .save-button { margin-top: 0; }
 
 .report-preview-container {
     margin-top: 30px;
@@ -1230,13 +1233,6 @@ body.dark-mode .med-badge-over {
         display: none !important;
     }
 
-    #reportPrintContainer {
-        display: block !important;
-        max-width: 100%;
-        background: white;
-        color: black;
-    }
-
     body {
         background: white !important;
         color: black !important;
@@ -1279,5 +1275,30 @@ body.dark-mode .med-badge-over {
 
     .button-group {
         flex-direction: column;
+    }
+}
+
+.report-print-container {
+    display: none;
+}
+
+@page {
+    size: A4;
+    margin: 12mm;
+}
+
+@media print {
+    body.printing-report {
+        background: #fff !important;
+    }
+
+    body.printing-report .app-container {
+        display: none !important;
+    }
+
+    body.printing-report .report-print-container {
+        display: block !important;
+        background: #fff;
+        color: #222;
     }
 }
