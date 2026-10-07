@@ -1053,6 +1053,7 @@ body.dark-mode .med-badge-over {
     gap: 8px;
     margin-bottom: 10px;
     cursor: pointer;
+    flex-direction: row;
 }
 
 .report-checkbox input {
@@ -1275,30 +1276,5 @@ body.dark-mode .med-badge-over {
 
     .button-group {
         flex-direction: column;
-    }
-}
-
-.report-print-container {
-    display: none;
-}
-
-@page {
-    size: A4;
-    margin: 12mm;
-}
-
-@media print {
-    body.printing-report {
-        background: #fff !important;
-    }
-
-    body.printing-report .app-container {
-        display: none !important;
-    }
-
-    body.printing-report .report-print-container {
-        display: block !important;
-        background: #fff;
-        color: #222;
     }
 }

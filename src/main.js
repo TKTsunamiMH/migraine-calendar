@@ -909,12 +909,14 @@ document.querySelector('#app').innerHTML = `
             </label>
           </div>
 
-          <label class="form-grid">
-            <span data-i18n="medicine">Medicine</span>
-            <select id="reportMedicineSelect">
-              <option value="">None</option>
-            </select>
-          </label>
+          <div class="form-grid">
+            <label>
+                <span data-i18n="medicine">Medicine</span>
+                <select id="reportMedicineSelect">
+                    <option value="">None</option>
+                </select>
+            </label>
+          </div>
 
           <div class="report-options-section">
             <p data-i18n="reportOptions">What to include (optional)</p>
@@ -943,11 +945,9 @@ document.querySelector('#app').innerHTML = `
         </div>
 
         <div id="reportPreviewContainer" style="display:none" class="report-preview-container"></div>
-        // <div id="reportPrintContainer" style="display:none" class="report-print-container"></div>
       </section>
     </main>
   </div>
-<div id="reportPrintContainer" class="report-print-container"></div>
 `
 
 const painLevel = document.querySelector('#painLevel')
@@ -981,23 +981,23 @@ navButtons.forEach(button => {
     })
 })
 
+// Update report medicine selector
+function updateReportMedicineSelector() {
+    const medSelect = document.querySelector('#reportMedicineSelect')
+    if (!medSelect) return
+    const currentValue = medSelect.value
+    medSelect.innerHTML = '<option value="">None</option>'
+    dailyMedications.forEach(med => {
+        const option = document.createElement('option')
+        option.value = med.name
+        option.textContent = med.name
+        medSelect.appendChild(option)
+    })
+    medSelect.value = currentValue
+}
+
 // Doctor Report Event Handlers
 if (document.querySelector('#reportPeriodSelect')) {
-    // Populate medicine selector
-    const medSelect = document.querySelector('#reportMedicineSelect')
-    function updateReportMedicineSelector() {
-        const currentValue = medSelect.value
-        medSelect.innerHTML = '<option value="">None</option>'
-        dailyMedications.forEach(med => {
-            const option = document.createElement('option')
-            option.value = med.name
-            option.textContent = med.name
-            medSelect.appendChild(option)
-        })
-        medSelect.value = currentValue
-    }
-    updateReportMedicineSelector()
-    
     document.querySelector('#reportPeriodSelect').addEventListener('change', (e) => {
         const customRange = document.querySelector('#customDateRange')
         customRange.style.display = e.target.value === 'custom' ? 'grid' : 'none'
@@ -1037,43 +1037,65 @@ if (document.querySelector('#reportPeriodSelect')) {
     })
 
     document.querySelector('#reportGeneratePDFButton').addEventListener('click', async () => {
-        const period = document.querySelector('#reportPeriodSelect').value
-        const startDate = document.querySelector('#reportStartDate').value
-        const endDate = document.querySelector('#reportEndDate').value
-        
-        let dateRange
-        if (period === 'custom') {
-            if (!startDate || !endDate) {
-                alert(t('pleaseChooseDate'))
-                return
-            }
-            dateRange = { startDate, endDate }
-        } else {
-            dateRange = getDateRange(period)
+    const period = document.querySelector('#reportPeriodSelect').value
+    const startDate = document.querySelector('#reportStartDate').value
+    const endDate = document.querySelector('#reportEndDate').value
+
+    let dateRange
+    if (period === 'custom') {
+        if (!startDate || !endDate) {
+            alert(t('pleaseChooseDate'))
+            return
         }
+        dateRange = { startDate, endDate }
+    } else {
+        dateRange = getDateRange(period)
+    }
 
-        const options = {
-            includeFoods: document.querySelector('#reportOptFood').checked,
-            includeWeather: document.querySelector('#reportOptWeather').checked,
-            includeNotes: document.querySelector('#reportOptNotes').checked,
-            includeCycle: document.querySelector('#reportOptCycle').checked,
-            selectedMedicine: document.querySelector('#reportMedicineSelect').value || null
-        }
+    const options = {
+        includeFoods: document.querySelector('#reportOptFood').checked,
+        includeWeather: document.querySelector('#reportOptWeather').checked,
+        includeNotes: document.querySelector('#reportOptNotes').checked,
+        includeCycle: document.querySelector('#reportOptCycle').checked,
+        selectedMedicine: document.querySelector('#reportMedicineSelect').value || null
+    }
 
-        const reportData = buildReportData(historyEntries, dailyMedications, dateRange.startDate, dateRange.endDate, options)
-        const html = await renderReportHTML(reportData, currentLang, t)
-        
-        const printContainer = document.querySelector('#reportPrintContainer')
-        printContainer.innerHTML = html
+    const reportData = buildReportData(historyEntries, dailyMedications, dateRange.startDate, dateRange.endDate, options)
+    const html = await renderReportHTML(reportData, currentLang, t)
 
-        document.body.classList.add('printing-report')
-        window.addEventListener('afterprint', () => {
-            document.body.classList.remove('printing-report')
-            printContainer.innerHTML = ''
-        }, { once: true })
+    // Temporary off-screen container, always light and A4 width
+    const holder = document.createElement('div')
+    holder.style.cssText = 'position:fixed; left:-10000px; top:0;'
 
-        setTimeout(() => window.print(), 300)
-    })
+    const wrapper = document.createElement('div')
+    wrapper.style.cssText = 'width:794px; padding:24px; background:#fff; color:#222; font-family:Arial, Helvetica, sans-serif;'
+    wrapper.innerHTML = html
+
+    holder.appendChild(wrapper)
+    document.body.appendChild(holder)
+
+    try {
+        const { default: html2pdf } = await import('html2pdf.js')
+
+        await html2pdf()
+            .set({
+                margin: 10,
+                filename: `migraine-report-${dateRange.startDate}_to_${dateRange.endDate}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, windowWidth: 794 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['css', 'avoid-all'] }
+            })
+            .from(wrapper)
+            .save()
+    } catch (error) {
+        console.error('PDF creation failed:', error)
+        alert('Could not create the PDF.')
+    } finally {
+        wrapper.remove()
+        holder.remove()
+    }
+})
 }
 
 document.querySelector('#migraine-form').addEventListener('submit', async event => {
@@ -3074,6 +3096,7 @@ async function loadDailyMedications() {
     renderDailyMedList()
     populateSinceMedicationFilter()
     renderMedicationTrend()
+    updateReportMedicineSelector()
 }
 
 function renderDailyMedList() {
@@ -3300,6 +3323,7 @@ async function generateChartImage(reportData, lang) {
             options: {
                 responsive: false,
                 maintainAspectRatio: false,
+                animation: false,
                 plugins: {
                     legend: { display: true },
                     title: { display: false }
@@ -3318,17 +3342,21 @@ async function generateChartImage(reportData, lang) {
     })
 }
 
+function toLocalDateString(d) {
+    return [
+        d.getFullYear(),
+        String(d.getMonth() + 1).padStart(2, '0'),
+        String(d.getDate()).padStart(2, '0')
+    ].join('-')
+}
+
 function getDateRange(selection) {
     const today = new Date()
     const endDate = new Date(today.getFullYear(), today.getMonth(), 0)
-    let startDate
-    if (selection === 'lastMonth') {
-        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-    } else if (selection === 'last3Months') {
-        startDate = new Date(today.getFullYear(), today.getMonth() - 3, 1)
-    }
-    const formatDate = (d) => d.toISOString().slice(0, 10)
-    return { startDate: formatDate(startDate), endDate: formatDate(endDate) }
+    const startDate = selection === 'lastMonth'
+        ? new Date(today.getFullYear(), today.getMonth() - 1, 1)
+        : new Date(today.getFullYear(), today.getMonth() - 3, 1)
+    return { startDate: toLocalDateString(startDate), endDate: toLocalDateString(endDate) }
 }
 
 document.querySelector('#cancelMedEditButton').addEventListener('click', () => {
